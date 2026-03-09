@@ -15,15 +15,27 @@ async function submitToAirtable(email) {
       'Authorization': `Bearer ${AIRTABLE_TOKEN}`,
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ fields: { 'Email Template': email } })
+    body: JSON.stringify({ fields: { Email: email } })
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    console.error('[Airtable] Status:', res.status, err);
+    console.error('[Airtable] POST error:', res.status, JSON.stringify(err));
     throw new Error('Airtable error');
   }
-  console.log('[Airtable] OK — email saved:', email);
+  console.log('[Airtable] OK — record created for:', email);
 }
+
+/* Log exact field names from Airtable schema (debug — remove later) */
+fetch(`https://api.airtable.com/v0/meta/bases/${AIRTABLE_BASE}/tables`, {
+  headers: { 'Authorization': `Bearer ${AIRTABLE_TOKEN}` }
+})
+  .then(r => r.json())
+  .then(d => {
+    const tbl = d.tables && d.tables.find(t => t.id === AIRTABLE_TABLE);
+    if (tbl) console.log('[Airtable] Fields in table:', tbl.fields.map(f => `"${f.name}" (${f.type})`));
+    else console.warn('[Airtable] Table not found in schema. Tables:', d.tables && d.tables.map(t => t.id));
+  })
+  .catch(e => console.error('[Airtable] Schema fetch error:', e));
 
 const header = document.getElementById('site-header');
 
