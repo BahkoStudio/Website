@@ -4,7 +4,7 @@
 gsap.registerPlugin(ScrollTrigger);
 
 /* ── AIRTABLE CONFIG ─────────────────────────────────────── */
-const AIRTABLE_TOKEN  = 'BYTA_MOT_DIN_TOKEN'; // ← klistra in din Personal Access Token här
+const AIRTABLE_TOKEN  = 'patTK0EvdtERoORBS';
 const AIRTABLE_BASE   = 'appmmwhjfVRpQm5FK';
 const AIRTABLE_TABLE  = 'tblVMRAxQzeXOw1OF';
 
