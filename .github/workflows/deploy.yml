@@ -32,9 +32,37 @@ jobs:
           # Custom domain
           echo "bahkobyra.se" > dist/CNAME
 
-      - name: Deploy to gh-pages
+      - name: Deploy to gh-pages (bahkobyra.se)
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
+          force_orphan: true
+
+  deploy-demo:
+    runs-on: ubuntu-latest
+    needs: deploy
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build demo structure (bahkobyra.cloud)
+        run: |
+          mkdir -p dist-demo/kliniker
+
+          # Clinic demo at root + kliniker path
+          cp kliniker/elara-klinik-demo-v2.html dist-demo/index.html
+          cp kliniker/elara-klinik-demo-v2.html dist-demo/kliniker/elara-klinik-demo-v2.html
+
+          # Custom domain
+          echo "bahkobyra.cloud" > dist-demo/CNAME
+
+      - name: Deploy to BahkoStudio/Demo gh-pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          personal_token: ${{ secrets.DEMO_REPO_TOKEN }}
+          external_repository: BahkoStudio/Demo
+          publish_dir: ./dist-demo
+          publish_branch: gh-pages
           force_orphan: true
