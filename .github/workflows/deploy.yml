@@ -1,0 +1,40 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build deployment structure
+        run: |
+          mkdir -p dist/kliniker dist/brand
+
+          # Agency site → root
+          cp bahkobyra/index.html dist/index.html
+          cp bahkobyra/pitchdeck.html dist/pitchdeck.html
+
+          # Clinic demo
+          cp kliniker/elara-klinik-demo-v2.html dist/kliniker/elara-klinik-demo-v2.html
+
+          # Brand assets
+          cp brand/* dist/brand/ 2>/dev/null || true
+
+          # Custom domain
+          echo "bahkobyra.se" > dist/CNAME
+
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          force_orphan: true

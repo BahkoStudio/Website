@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bahko Byrå — Vi Fyller Din Kalender Med Nya Kunder Inom 30 Dagar</title>
+<meta name="description" content="Bahko Byrå hjälper svenska kliniker och företag att synas på Google, få fler bokningar och växa online. Hemsidor, Google Ads, SEO och reklamfilmer.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="/brand/BahkoStudio-removebg-preview.png">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#06061A;
+  --bg2:#0B0B28;
+  --bg3:#11113A;
+  --p:#7C3AED;
+  --p-mid:#9B5CF6;
+  --p-lt:#C4B5FD;
+  --p-dim:rgba(124,58,237,.18);
+  --p-glow:rgba(124,58,237,.07);
+  --border:rgba(139,92,246,.13);
+  --border-md:rgba(139,92,246,.3);
+  --text:#F0EDFF;
+  --text-dim:rgba(240,237,255,.52);
+  --text-faint:rgba(240,237,255,.18);
+  --syne:'Space Grotesk',system-ui,sans-serif;
+  --inter:'Helvetica Now','Helvetica Neue',Helvetica,Arial,sans-serif;
+}
+html{scroll-behavior:auto}
+body{background:var(--bg);color:var(--text);font-family:var(--inter);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* ── LOADER ──*/
+#loader{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .7s,visibility .7s}
+#loader.out{opacity:0;visibility:hidden;pointer-events:none}
+.ld-w{display:flex;flex-direction:column;align-items:center;gap:2rem}
+.ld-logo{font-family:var(--syne);font-size:1rem;font-weight:800;letter-spacing:.4em;text-transform:uppercase;color:var(--text)}
+.ld-logo b{color:var(--p-lt)}
+.ld-track{width:180px;height:1px;background:rgba(139,92,246,.15)}
+.ld-bar{width:0%;height:100%;background:linear-gradient(90deg,var(--p),var(--p-lt));transition:width .2s linear}
+
+/* ── NOISE ──*/
+.noise{position:fixed;inset:0;z-index:900;pointer-events:none;opacity:.018;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:180px;mix-blend-mode:overlay}
+
+/* ── HEADER ──*/
+header{position:fixed;top:0;left:0;right:0;z-index:200;padding:1.3rem clamp(1.5rem,4vw,3.5rem);display:flex;justify-content:space-between;align-items:center;transition:all .4s}
+header.scrolled{background:rgba(6,6,26,.93);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--border)}
+.logo{display:flex;align-items:center;gap:.7rem;text-decoration:none}
+.logo-img{height:30px;width:auto;display:block}
+.logo-txt{font-family:var(--syne);font-size:.9rem;font-weight:800;letter-spacing:.3em;color:var(--text);text-transform:uppercase}
+.logo-txt b{color:var(--p-lt)}
+nav a{font-family:var(--syne);font-size:.65rem;font-weight:600;letter-spacing:.15em;color:var(--text-dim);text-decoration:none;text-transform:uppercase;transition:color .2s;margin-left:2.2rem}
+nav a:hover{color:var(--text)}
+.nav-cta{background:var(--p) !important;color:var(--text) !important;padding:.5rem 1.3rem;border-radius:4px;transition:background .2s !important}
+.nav-cta:hover{background:var(--p-mid) !important}
+.hbg{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px}
+.hbg span{display:block;width:22px;height:1.5px;background:var(--text);transition:all .3s}
+.hbg.open span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
+.hbg.open span:nth-child(2){opacity:0}
+.hbg.open span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
+.mob-nav{position:fixed;inset:0;background:rgba(6,6,26,.97);backdrop-filter:blur(24px);z-index:250;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2.5rem;opacity:0;visibility:hidden;transition:all .35s}
+.mob-nav.open{opacity:1;visibility:visible}
+.mob-nav a{font-family:var(--syne);font-size:2.2rem;font-weight:800;color:var(--text-dim);text-decoration:none;text-transform:uppercase;transition:color .2s}
+.mob-nav a:hover{color:var(--p-lt)}
+
+/* ── HERO ──*/
+.hero{min-height:100svh;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:9rem clamp(1.5rem,5vw,4.5rem) 5rem;position:relative;overflow:hidden}
+.hero-mesh{position:absolute;top:-30%;right:-15%;width:70vw;height:70vw;background:radial-gradient(circle at 60% 40%,rgba(124,58,237,.18) 0%,rgba(168,85,247,.05) 40%,transparent 70%);pointer-events:none;animation:float 8s ease-in-out infinite}
+.hero-mesh2{position:absolute;bottom:-20%;left:-10%;width:50vw;height:50vw;background:radial-gradient(circle,rgba(124,58,237,.07) 0%,transparent 65%);pointer-events:none;animation:float 11s ease-in-out infinite reverse}
+@keyframes float{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-30px) scale(1.03)}}
+.grid-overlay{position:absolute;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:60px 60px;opacity:.35;pointer-events:none;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 20%,transparent 80%)}
+
+.hero-badge{display:inline-flex;align-items:center;gap:.6rem;font-family:var(--syne);font-size:.6rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--p-lt);background:var(--p-dim);border:1px solid rgba(196,181,253,.2);padding:.38rem .9rem;border-radius:20px;margin-bottom:2.2rem}
+.hero-badge-dot{width:5px;height:5px;border-radius:50%;background:var(--p-lt);animation:blink 2s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:.3}50%{opacity:1}}
+
+.hero-title{font-family:var(--syne);font-weight:700;letter-spacing:-.02em;line-height:1.0;color:var(--text);margin-bottom:.8rem}
+.hero-title .line{display:block;overflow:hidden}
+.hero-title .line span{display:block}
+.ht-xl{font-size:clamp(2.8rem,7vw,6rem)}
+.ht-lg{font-size:clamp(2.8rem,7vw,6rem)}
+.ht-accent{background:linear-gradient(135deg,var(--p-lt) 0%,var(--p-mid) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+.hero-sub30{font-family:var(--syne);font-size:clamp(1.3rem,2.5vw,2.2rem);font-weight:600;letter-spacing:-.02em;color:var(--text-dim);margin-bottom:2.5rem;overflow:hidden}
+.hero-sub30 span{display:inline-block;transform:translateY(110%)}
+.hero-body{font-size:clamp(.9rem,1.1vw,1.05rem);color:var(--text-dim);line-height:1.8;max-width:520px;margin-bottom:1rem;font-weight:400}
+.hero-svc{font-family:var(--syne);font-size:.68rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--text-faint);margin-bottom:2.8rem}
+.hero-ctas{display:flex;gap:1rem;flex-wrap:wrap}
+
+.btn{display:inline-flex;align-items:center;gap:.6rem;font-family:var(--syne);font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.95rem 2.4rem;border-radius:4px;text-decoration:none;cursor:pointer;border:none;transition:transform .15s}
+.btn:hover{transform:translateY(-2px)}
+.btn-p{background:linear-gradient(135deg,var(--p),var(--p-mid));color:#fff;box-shadow:0 4px 24px rgba(124,58,237,.35)}
+.btn-p:hover{box-shadow:0 6px 32px rgba(124,58,237,.5)}
+.btn-outline{background:none;color:var(--text-dim);border:1px solid var(--border-md)}
+.btn-outline:hover{color:var(--text);border-color:rgba(196,181,253,.4)}
+
+.scroll-hint{position:absolute;bottom:2.5rem;left:clamp(1.5rem,5vw,4.5rem);display:flex;align-items:center;gap:.8rem}
+.sh-line{width:40px;height:1px;background:var(--border-md);position:relative;overflow:hidden}
+.sh-line::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:var(--p-lt);animation:sh 2.5s ease-in-out infinite}
+@keyframes sh{0%{left:-100%}50%{left:0}100%{left:100%}}
+.sh-txt{font-family:var(--syne);font-size:.58rem;font-weight:600;letter-spacing:.25em;color:var(--text-faint);text-transform:uppercase}
+
+/* ── TICKER ──*/
+.ticker{background:linear-gradient(90deg,var(--p),var(--p-mid));padding:.65rem 0;overflow:hidden;white-space:nowrap}
+.ticker-track{display:inline-flex;animation:tick 28s linear infinite}
+.t-item{font-family:var(--syne);font-size:.68rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.9);padding:0 2.5rem}
+.t-sep{color:rgba(255,255,255,.35)}
+@keyframes tick{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* ── SECTIONS ──*/
+section{padding:clamp(5rem,9vw,8rem) clamp(1.5rem,5vw,4.5rem)}
+.wrap{max-width:1160px;margin:0 auto}
+.stag{font-family:var(--syne);font-size:.6rem;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:var(--p-lt);margin-bottom:.9rem;display:flex;align-items:center;gap:.6rem}
+.stag::before{content:'';width:20px;height:1px;background:var(--p)}
+.sh2{font-family:var(--syne);font-weight:800;font-size:clamp(1.9rem,4.5vw,3.8rem);letter-spacing:-.04em;line-height:1.02;color:var(--text);margin-bottom:1.2rem}
+.sbody{font-size:.95rem;color:var(--text-dim);line-height:1.85;max-width:520px;font-weight:400}
+
+/* ── STATS ──*/
+.stats-sec{background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.stats-g{display:grid;grid-template-columns:repeat(4,1fr);max-width:1160px;margin:0 auto}
+.s-col{padding:3rem 2rem;border-right:1px solid var(--border);text-align:center}
+.s-col:last-child{border-right:none}
+.s-val{font-family:var(--syne);font-size:clamp(2.4rem,5vw,4rem);font-weight:800;letter-spacing:-.05em;background:linear-gradient(135deg,var(--p-lt),var(--p-mid));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
+.s-lbl{font-family:var(--syne);font-size:.65rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--text-faint);margin-top:.5rem}
+
+/* ── SERVICES ──*/
+.svc-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(195px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);max-width:1160px;margin:3.5rem auto 0;border-radius:8px;overflow:hidden}
+.svc{background:var(--bg);padding:2.2rem 1.8rem;transition:background .3s;position:relative;overflow:hidden}
+.svc::before{content:'';position:absolute;bottom:0;left:0;width:0;height:2px;background:linear-gradient(90deg,var(--p),var(--p-lt));transition:width .4s ease}
+.svc:hover{background:var(--bg2)}
+.svc:hover::before{width:100%}
+.svc-ic{font-size:1.6rem;margin-bottom:1.2rem;display:block}
+.svc-n{font-family:var(--syne);font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:.5rem;letter-spacing:-.02em}
+.svc-d{font-size:.81rem;color:var(--text-dim);line-height:1.7;margin-bottom:.9rem;font-weight:400}
+.svc-p{font-family:var(--syne);font-size:.65rem;font-weight:700;letter-spacing:.1em;color:var(--p-lt);text-transform:uppercase}
+
+/* ── PROCESS ──*/
+.proc-g{display:grid;grid-template-columns:repeat(4,1fr);gap:2rem;max-width:1160px;margin:3.5rem auto 0}
+.pst{padding-top:1.8rem;border-top:2px solid var(--border);transition:border-top-color .4s}
+.pst-n{font-family:var(--syne);font-size:2.6rem;font-weight:800;letter-spacing:-.06em;color:var(--border);line-height:1;margin-bottom:1rem;transition:color .4s}
+.pst-t{font-family:var(--syne);font-size:1rem;font-weight:700;color:var(--text);margin-bottom:.5rem}
+.pst-d{font-size:.81rem;color:var(--text-dim);line-height:1.7;font-weight:400}
+
+/* ── DEMO ──*/
+.demo-sec{background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.demo-g{max-width:1160px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center}
+.demo-frame{border:1px solid var(--border);border-radius:8px;overflow:hidden;aspect-ratio:16/10;background:var(--bg);position:relative;box-shadow:0 0 60px rgba(124,58,237,.08)}
+.demo-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;padding:2rem}
+.demo-dot-row{display:flex;gap:.35rem;margin-bottom:1rem}
+.d-dot{width:7px;height:7px;border-radius:50%}
+.d-dot:nth-child(1){background:var(--p-mid);animation:dp 2s ease-in-out infinite}
+.d-dot:nth-child(2){background:var(--border-md);animation:dp 2s .3s ease-in-out infinite}
+.d-dot:nth-child(3){background:var(--border-md);animation:dp 2s .6s ease-in-out infinite}
+@keyframes dp{0%,100%{opacity:.2}50%{opacity:.9}}
+.demo-bar{height:1px;background:var(--border);border-radius:1px;transition:background .3s}
+.demo-frame:hover .demo-bar{background:var(--border-md)}
+.demo-bar:nth-child(2){width:65%}.demo-bar:nth-child(3){width:90%}.demo-bar:nth-child(4){width:50%}.demo-bar:nth-child(5){width:75%}
+.demo-lbl{font-family:var(--syne);font-size:.58rem;font-weight:600;letter-spacing:.25em;color:var(--text-faint);text-transform:uppercase;margin-top:.8rem}
+.demo-a{display:inline-flex;align-items:center;gap:.6rem;color:var(--p-lt);font-family:var(--syne);font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;margin-top:1.8rem;transition:gap .2s}
+.demo-a:hover{gap:1rem}
+.demo-a svg{width:14px;height:14px;stroke:currentColor;stroke-width:2.5;fill:none}
+
+/* ── WHY ──*/
+.why-g{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:start;max-width:1160px;margin:3.5rem auto 0}
+.why-pts{display:flex;flex-direction:column;gap:1.3rem}
+.wi{display:flex;gap:1.2rem;align-items:flex-start;padding:1.5rem;background:var(--bg2);border:1px solid var(--border);border-radius:8px;transition:border-color .25s,background .25s}
+.wi:hover{border-color:var(--border-md);background:var(--bg3)}
+.wi-ck{width:32px;height:32px;border-radius:50%;background:var(--p-dim);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:.1rem}
+.wi-ck svg{width:13px;height:13px;stroke:var(--p-lt);stroke-width:2.5;fill:none}
+.wi-t{font-family:var(--syne);font-size:.92rem;font-weight:700;color:var(--text);margin-bottom:.3rem}
+.wi-d{font-size:.81rem;color:var(--text-dim);line-height:1.65;font-weight:400}
+
+/* ── CTA BAND ──*/
+.cta-band{background:linear-gradient(135deg,var(--p) 0%,#5B21B6 100%);padding:clamp(3.5rem,7vw,6rem) clamp(1.5rem,5vw,4.5rem);text-align:center;position:relative;overflow:hidden}
+.cta-band::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none}
+.cta-band h2{font-family:var(--syne);font-size:clamp(2rem,5vw,3.8rem);font-weight:800;letter-spacing:-.04em;color:#fff;line-height:1.05;margin-bottom:.8rem;position:relative}
+.cta-band p{font-size:1rem;color:rgba(255,255,255,.7);margin-bottom:2.5rem;font-weight:400;position:relative}
+.btn-white{background:#fff;color:var(--p);font-family:var(--syne);font-size:.75rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;padding:1.05rem 2.8rem;border:none;border-radius:4px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:.6rem;transition:transform .15s,box-shadow .2s;position:relative}
+.btn-white:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,.3)}
+
+/* ── CONTACT ──*/
+.contact-sec{background:var(--bg2);border-top:1px solid var(--border)}
+.cnt-w{max-width:640px;margin:0 auto;text-align:center}
+.cnt-form{display:flex;flex-direction:column;gap:1.1rem;margin-top:3rem;text-align:left}
+.cf-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.cf-lbl{font-family:var(--syne);font-size:.58rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--text-faint);display:block;margin-bottom:.4rem}
+.cf-in{background:rgba(139,92,246,.06);border:1px solid var(--border);color:var(--text);font-family:var(--inter);font-size:.9rem;font-weight:400;padding:.85rem 1rem;width:100%;outline:none;border-radius:4px;transition:border-color .2s;-webkit-appearance:none;appearance:none}
+.cf-in:focus{border-color:rgba(196,181,253,.35);background:rgba(139,92,246,.1)}
+.cf-in::placeholder{color:var(--text-faint)}
+textarea.cf-in{resize:vertical;min-height:100px}
+.cf-btn{background:linear-gradient(135deg,var(--p),var(--p-mid));color:#fff;font-family:var(--syne);font-size:.72rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;padding:1.05rem 2.8rem;border:none;cursor:pointer;border-radius:4px;box-shadow:0 4px 20px rgba(124,58,237,.3);transition:transform .15s,box-shadow .2s;align-self:flex-start}
+.cf-btn:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(124,58,237,.45)}
+.cf-ok{text-align:center;padding:3rem 0;display:none}
+.cf-ok.show{display:block}
+.cf-ok-ic{font-size:2.5rem;margin-bottom:.8rem}
+.cf-ok h3{font-family:var(--syne);font-size:1.6rem;font-weight:800;color:var(--text);margin-bottom:.4rem}
+.cf-ok p{color:var(--text-dim);font-size:.9rem}
+
+/* ── FOOTER ──*/
+footer{padding:2rem clamp(1.5rem,5vw,4.5rem);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;border-top:1px solid var(--border)}
+.f-logo{font-family:var(--syne);font-size:.85rem;font-weight:800;letter-spacing:.25em;text-transform:uppercase;color:var(--text)}
+.f-logo b{color:var(--p-lt)}
+.f-copy{font-family:var(--syne);font-size:.62rem;font-weight:600;letter-spacing:.12em;color:var(--text-faint);text-transform:uppercase}
+
+/* ── PRICING ──*/
+.pricing-g{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;max-width:1060px;margin:3.5rem auto 0}
+.pc{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:2.2rem 2rem;display:flex;flex-direction:column;gap:.45rem;position:relative;transition:border-color .25s,box-shadow .25s}
+.pc.featured{border-color:var(--border-md);box-shadow:0 0 40px rgba(124,58,237,.1)}
+.pc.featured::before{content:'Populärast';position:absolute;top:-1px;left:50%;transform:translateX(-50%);font-family:var(--syne);font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;padding:.24rem 1rem;background:linear-gradient(90deg,var(--p),var(--p-mid));color:#fff;border-radius:0 0 8px 8px;font-weight:700}
+.pc:hover{border-color:var(--border-md)}
+.pc-tier{font-family:var(--syne);font-size:.58rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--p-lt)}
+.pc-name{font-family:var(--syne);font-size:1.5rem;font-weight:800;color:var(--text);margin-top:.15rem;letter-spacing:-.02em}
+.pc-price{font-family:var(--syne);font-size:2.4rem;font-weight:800;background:linear-gradient(135deg,var(--p-lt),var(--p-mid));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;margin:.65rem 0 .25rem}
+.pc-unit{font-size:1.1rem;-webkit-text-fill-color:var(--text-dim);background:none;-webkit-background-clip:unset;background-clip:unset}
+.pc-sub{font-size:.78rem;color:var(--text-dim)}
+.pc-div{height:1px;background:var(--border);margin:.9rem 0}
+.pc-list{list-style:none;display:flex;flex-direction:column;gap:.55rem}
+.pc-list li{font-size:.82rem;color:var(--text-dim);display:flex;align-items:flex-start;gap:.65rem;line-height:1.5}
+.pc-list li::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--p-mid);flex-shrink:0;margin-top:.42rem}
+
+/* ── ANIM PLACEHOLDERS — set by JS, not CSS ──*/
+
+
+/* ── RESPONSIVE ──*/
+@media(max-width:900px){.stats-g{grid-template-columns:repeat(2,1fr)}.s-col:nth-child(2){border-right:none}.proc-g{grid-template-columns:1fr 1fr}.demo-g{grid-template-columns:1fr}.why-g{grid-template-columns:1fr}}
+@media(max-width:768px){nav{display:none}.hbg{display:flex}.proc-g{grid-template-columns:1fr}.svc-g{grid-template-columns:1fr}.pricing-g{grid-template-columns:1fr}}
+@media(max-width:480px){.hero-ctas{flex-direction:column}.cf-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div id="loader">
+  <div class="ld-w">
+    <div class="ld-logo"><img src="/brand/BahkoStudio-removebg-preview.png" style="height:36px;width:auto;display:block;filter:brightness(0) invert(1)" onerror="this.outerHTML='Bahko <b>Byrå</b>'"> </div>
+    <div class="ld-track"><div class="ld-bar" id="ld-bar"></div></div>
+  </div>
+</div>
+<div class="noise"></div>
+
+<nav class="mob-nav" id="mob-nav">
+  <a href="#tjanster" onclick="closeMob()">Tjänster</a>
+  <a href="#process" onclick="closeMob()">Process</a>
+  <a href="#demo" onclick="closeMob()">Demo</a>
+  <a href="#varfor" onclick="closeMob()">Varför Oss</a>
+  <a href="#priser" onclick="closeMob()">Priser</a>
+  <a href="#kontakt" onclick="closeMob()">Boka Samtal</a>
+</nav>
+
+<header id="hdr">
+  <a href="#" class="logo">
+    <img src="/brand/BahkoStudio-removebg-preview.png" class="logo-img" alt="Bahko Byrå" onerror="this.style.display='none'">
+    <span class="logo-txt">Bahko <b>Byrå</b></span>
+  </a>
+  <nav>
+    <a href="#tjanster">Tjänster</a>
+    <a href="#process">Process</a>
+    <a href="#demo">Demo</a>
+    <a href="#varfor">Varför Oss</a>
+    <a href="#priser">Priser</a>
+    <a href="#kontakt" class="nav-cta">Boka Samtal</a>
+  </nav>
+  <button class="hbg" id="hbg" aria-label="Meny">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-mesh"></div>
+  <div class="hero-mesh2"></div>
+  <div class="grid-overlay"></div>
+
+  <div class="hero-badge">
+    <span class="hero-badge-dot"></span>
+    Digital Tillväxtbyrå · Sverige
+  </div>
+
+  <h1 class="hero-title">
+    <span class="line ht-xl"><span>Vi Fyller Din Kalender</span></span>
+    <span class="line ht-xl"><span class="ht-accent">Med Nya Kunder</span></span>
+    <span class="line ht-xl"><span>Inom 30 Dagar.</span></span>
+  </h1>
+
+  <p class="hero-body">Sluta vänta på att kunder ska hitta dig. Vi placerar ditt företag framför lokala kunder som aktivt söker dina tjänster — och vi mäter framgång i faktiska bokningar.</p>
+  <p class="hero-svc">Hemsidor &nbsp;·&nbsp; Appar &nbsp;·&nbsp; Google Ads &nbsp;·&nbsp; SEO &nbsp;·&nbsp; Reklamfilmer</p>
+
+  <div class="hero-ctas">
+    <a href="#kontakt" class="btn btn-p">
+      Boka Gratis Samtal
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+    <a href="/kliniker/elara-klinik-demo-v2.html" target="_blank" class="btn btn-outline">Se Live Demo</a>
+  </div>
+
+  <div class="scroll-hint" id="sh">
+    <div class="sh-line"></div>
+    <span class="sh-txt">Scrolla</span>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-track">
+    <span class="t-item">Fler Bokningar <span class="t-sep">✦</span></span>
+    <span class="t-item">Google Ads <span class="t-sep">✦</span></span>
+    <span class="t-item">Hemsidor Som Konverterar <span class="t-sep">✦</span></span>
+    <span class="t-item">SEO Som Rankar <span class="t-sep">✦</span></span>
+    <span class="t-item">Resultat Inom 30 Dagar <span class="t-sep">✦</span></span>
+    <span class="t-item">Reklamfilmer <span class="t-sep">✦</span></span>
+    <span class="t-item">Synlighet Som Säljer <span class="t-sep">✦</span></span>
+    <span class="t-item">Fler Bokningar <span class="t-sep">✦</span></span>
+    <span class="t-item">Google Ads <span class="t-sep">✦</span></span>
+    <span class="t-item">Hemsidor Som Konverterar <span class="t-sep">✦</span></span>
+    <span class="t-item">SEO Som Rankar <span class="t-sep">✦</span></span>
+    <span class="t-item">Resultat Inom 30 Dagar <span class="t-sep">✦</span></span>
+    <span class="t-item">Reklamfilmer <span class="t-sep">✦</span></span>
+    <span class="t-item">Synlighet Som Säljer <span class="t-sep">✦</span></span>
+  </div>
+</div>
+
+<!-- STATS -->
+<section class="stats-sec">
+  <div class="stats-g">
+    <div class="s-col" data-r>
+      <div class="s-val" data-count="30" data-suf=" dagar">0</div>
+      <div class="s-lbl">Resultatgaranti</div>
+    </div>
+    <div class="s-col" data-r>
+      <div class="s-val" data-count="87" data-suf="+">0</div>
+      <div class="s-lbl">Klinikleads Klara</div>
+    </div>
+    <div class="s-col" data-r>
+      <div class="s-val" data-count="3" data-suf="x">0</div>
+      <div class="s-lbl">Mer Organisk Trafik</div>
+    </div>
+    <div class="s-col" data-r>
+      <div class="s-val" data-count="100" data-suf="%">0</div>
+      <div class="s-lbl">Fokus På Ditt Resultat</div>
+    </div>
+  </div>
+</section>
+
+<!-- TJÄNSTER -->
+<section id="tjanster">
+  <div class="wrap">
+    <div class="stag" data-r>Tjänster</div>
+    <h2 class="sh2" data-r>Allt du behöver för att<br>synas och sälja online.</h2>
+    <div class="svc-g">
+      <div class="svc" data-r><span class="svc-ic">🌐</span><div class="svc-n">Hemsidor</div><div class="svc-d">Konverteringsoptimerade hemsidor som rankar på Google och förvandlar besökare till betalande kunder.</div></div>
+      <div class="svc" data-r><span class="svc-ic">📱</span><div class="svc-n">Appar</div><div class="svc-d">Skräddarsydda bokningsappar och kundportaler som gör ditt företag tillgängligt dygnet runt.</div></div>
+      <div class="svc" data-r><span class="svc-ic">📈</span><div class="svc-n">Google Ads</div><div class="svc-d">Betald annonsering som visas exakt när dina kunder söker. Mätbart ROI från dag ett.</div></div>
+      <div class="svc" data-r><span class="svc-ic">🔍</span><div class="svc-n">SEO</div><div class="svc-d">Organisk synlighet som driver konstant trafik utan kostnad per klick — och som ingen kan stänga av.</div></div>
+      <div class="svc" data-r><span class="svc-ic">🎬</span><div class="svc-n">Reklamfilmer</div><div class="svc-d">Storytelling som stannar i minnet. Professionell videoproduktion för sociala medier och YouTube-annonser.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section id="process" style="background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="wrap">
+    <div class="stag" data-r>Hur Vi Jobbar</div>
+    <h2 class="sh2" data-r>Från första samtal<br>till fulla kalendrar.</h2>
+    <div class="proc-g">
+      <div class="pst" data-r><div class="pst-n">01</div><div class="pst-t">Gratis Samtal</div><div class="pst-d">20 minuter. Vi analyserar din nuvarande situation och berättar exakt vad som krävs för att nå dina mål.</div></div>
+      <div class="pst" data-r><div class="pst-n">02</div><div class="pst-t">Strategi & Demo</div><div class="pst-d">Du ser ett skräddarsytt demo och en klar tillväxtstrategi — innan du betalar en krona.</div></div>
+      <div class="pst" data-r><div class="pst-n">03</div><div class="pst-t">Vi Bygger Allt</div><div class="pst-d">Hemsida, annonser, SEO — vi hanterar hela kedjan. Du fokuserar på din verksamhet.</div></div>
+      <div class="pst" data-r><div class="pst-n">04</div><div class="pst-t">Kunder Flödar In</div><div class="pst-d">Trafik, leads och bokningar ökar. Vi optimerar löpande för att maximera ROI varje månad.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO -->
+<section id="demo">
+  <div class="wrap demo-g">
+    <div data-rl>
+      <div class="demo-frame">
+        <div class="demo-inner">
+          <div class="demo-dot-row"><div class="d-dot"></div><div class="d-dot"></div><div class="d-dot"></div></div>
+          <div class="demo-bar"></div>
+          <div class="demo-bar"></div>
+          <div class="demo-bar"></div>
+          <div class="demo-bar"></div>
+          <div class="demo-lbl">Élara Klinik · Live Demo</div>
+        </div>
+      </div>
+    </div>
+    <div data-rr>
+      <div class="stag">Live Demo</div>
+      <h2 class="sh2">Se hur din hemsida<br>kan se ut — nu.</h2>
+      <p class="sbody">Vi bygger ett fullständigt demo innan du bestämmer dig. Se bokningssystem, animationer och design i verklighet — inte i mockups.</p>
+      <a href="/kliniker/elara-klinik-demo-v2.html" target="_blank" class="demo-a">
+        Öppna Demo
+        <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- VARFÖR -->
+<section id="varfor" style="background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="wrap">
+    <div class="why-g">
+      <div>
+        <div class="stag" data-r>Varför Bahko Byrå</div>
+        <h2 class="sh2" data-r>Vi levererar kunder,<br>inte bara hemsidor.</h2>
+        <p class="sbody" data-r>De flesta byråer levererar en snygg hemsida och försvinner. Vi mäter framgång i faktiska bokningar — och vi är inte nöjda förrän du är det.</p>
+      </div>
+      <div class="why-pts">
+        <div class="wi" data-r><div class="wi-ck"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div><div class="wi-t">Mätbara resultat inom 30 dagar</div><div class="wi-d">Trafik och leads ökar eller vi jobbar utan betalning tills det händer. Vi sätter upp och optimerar snabbt.</div></div></div>
+        <div class="wi" data-r><div class="wi-ck"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div><div class="wi-t">Specialister på lokala kunder</div><div class="wi-d">Vi fokuserar inte på globala kampanjer. Vi hjälper dig att dominera din lokala marknad — det är där dina kunder finns.</div></div></div>
+        <div class="wi" data-r><div class="wi-ck"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div><div class="wi-t">100% transparent rapportering</div><div class="wi-d">Veckovisa rapporter. Du ser exakt vad vi gör, vad det kostar och vad det genererar. Inga dolda avgifter.</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRISER -->
+<section id="priser">
+  <div class="wrap">
+    <div class="stag" data-r>Priser</div>
+    <h2 class="sh2" data-r>Välj din <span class="ht-accent">tillväxtnivå.</span></h2>
+    <div class="pricing-g">
+
+      <div class="pc" data-r>
+        <div class="pc-tier">Starter</div>
+        <div class="pc-name">Bas</div>
+        <div class="pc-price">7 500 kr</div>
+        <div class="pc-sub">Engångsbetalning</div>
+        <div class="pc-div"></div>
+        <ul class="pc-list">
+          <li>Responsiv hemsida (5 sidor)</li>
+          <li>Grundläggande SEO</li>
+          <li>Kontaktformulär</li>
+          <li>Google Analytics</li>
+          <li>3 månaders support</li>
+        </ul>
+      </div>
+
+      <div class="pc featured" data-r>
+        <div class="pc-tier">Growth</div>
+        <div class="pc-name">Premium</div>
+        <div class="pc-price">4 500 kr<span class="pc-unit">/mån</span></div>
+        <div class="pc-sub">Månadsavtal, 6 mån min.</div>
+        <div class="pc-div"></div>
+        <ul class="pc-list">
+          <li>Premium hemsida (10+ sidor)</li>
+          <li>Lokal SEO — sida 1 garanti</li>
+          <li>Google Ads-hantering</li>
+          <li>Månadsrapport + KPI</li>
+          <li>Löpande uppdateringar</li>
+          <li>Prioriterad support</li>
+        </ul>
+      </div>
+
+      <div class="pc" data-r>
+        <div class="pc-tier">Full Scale</div>
+        <div class="pc-name">Komplett</div>
+        <div class="pc-price">12 000 kr<span class="pc-unit">/mån</span></div>
+        <div class="pc-sub">Komplett digital partner</div>
+        <div class="pc-div"></div>
+        <ul class="pc-list">
+          <li>Allt i Premium</li>
+          <li>Meta Ads (Instagram + FB)</li>
+          <li>Reklamfilm / UGC-video</li>
+          <li>Content-kalender</li>
+          <li>Dedicated account manager</li>
+          <li>Veckorapporter + strategi</li>
+          <li>Mobil app</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- CTA BAND -->
+<div class="cta-band" data-r>
+  <h2>Redo att fylla din kalender?</h2>
+  <p>Boka ett gratis 20-minuterssamtal — utan förpliktelser, utan säljsnack.</p>
+  <a href="#kontakt" class="btn-white">
+    Boka Gratis Samtal Nu
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+  </a>
+</div>
+
+<!-- KONTAKT -->
+<section class="contact-sec" id="kontakt">
+  <div class="cnt-w">
+    <div class="stag" style="justify-content:center" data-r>Kontakt</div>
+    <h2 class="sh2" data-r>Boka ditt kostnadsfria samtal.</h2>
+    <p class="sbody" style="margin:0 auto;text-align:center" data-r>Fyll i nedan så hör vi av oss inom 24 timmar för att boka ett kort samtal.</p>
+    <form class="cnt-form" id="cf" data-r>
+      <div class="cf-row">
+        <div><label class="cf-lbl">Namn</label><input class="cf-in" type="text" placeholder="Anna Svensson" required></div>
+        <div><label class="cf-lbl">Telefon</label><input class="cf-in" type="tel" placeholder="070 000 00 00"></div>
+      </div>
+      <div><label class="cf-lbl">E-post</label><input class="cf-in" type="email" placeholder="anna@dinverksamhet.se" required></div>
+      <div><label class="cf-lbl">Hur kan vi hjälpa dig?</label><textarea class="cf-in" placeholder="Berätta kort om din verksamhet och vad du vill uppnå..."></textarea></div>
+      <button class="cf-btn" type="submit">Skicka Förfrågan →</button>
+    </form>
+    <div class="cf-ok" id="cf-ok">
+      <div class="cf-ok-ic">✓</div>
+      <h3>Tack! Vi återkommer snart.</h3>
+      <p>Vi hör av oss inom 24 timmar för att boka ert samtal.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="f-logo">Bahko <b>Byrå</b></div>
+  <div class="f-copy">© 2026 · Synlighet som säljer.</div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.0.42/dist/lenis.min.js"></script>
+<script>
+// LOADER
+const ldBar = document.getElementById('ld-bar');
+let p = 0, iv = setInterval(() => { p = Math.min(p + Math.random()*18, 95); ldBar.style.width = p + '%'; }, 70);
+window.addEventListener('load', () => {
+  clearInterval(iv); ldBar.style.width = '100%';
+  setTimeout(() => { document.getElementById('loader').classList.add('out'); init(); }, 380);
+});
+
+function init() {
+  // Set initial states FIRST — before any CDN dependency can crash
+  gsap.set('[data-r]', { opacity:0, y:34 });
+  gsap.set('[data-rl]', { opacity:0, x:-34 });
+  gsap.set('[data-rr]', { opacity:0, x:34 });
+  gsap.set('.hero-title .line span', { y:'110%' });
+  gsap.set('.hero-badge', { opacity:0, y:10 });
+  gsap.set('#sh', { opacity:0 });
+
+  // LENIS (graceful fallback if CDN fails)
+  try {
+    const lenis = new Lenis({ lerp:.08, smoothWheel:true });
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add(t => lenis.raf(t * 1000));
+    gsap.ticker.lagSmoothing(0);
+  } catch(e) { console.warn('Lenis not available:', e); }
+
+  // HEADER
+  try { ScrollTrigger.create({ start:80, onEnter:()=>document.getElementById('hdr').classList.add('scrolled'), onLeaveBack:()=>document.getElementById('hdr').classList.remove('scrolled') }); } catch(e) {}
+
+  const tl = gsap.timeline({ delay:.05 });
+  tl.to('.hero-badge', { opacity:1, y:0, duration:.5, ease:'power2.out' });
+  document.querySelectorAll('.hero-title .line span').forEach((el, i) => tl.to(el, { y:'0%', duration:.75, ease:'power3.out' }, i * .11));
+  tl.to('.hero-sub30 span', { y:'0%', duration:.65, ease:'power3.out' }, '-=.35');
+  tl.to('#sh', { opacity:1, duration:.5 }, '-=.2');
+
+  // SCROLL REVEALS
+  gsap.utils.toArray('[data-r]').forEach(el => {
+    gsap.to(el, { opacity:1, y:0, duration:.7, ease:'power2.out', scrollTrigger:{ trigger:el, start:'top 88%', once:true } });
+  });
+  gsap.utils.toArray('[data-rl]').forEach(el => {
+    gsap.to(el, { opacity:1, x:0, duration:.8, ease:'power2.out', scrollTrigger:{ trigger:el, start:'top 85%', once:true } });
+  });
+  gsap.utils.toArray('[data-rr]').forEach(el => {
+    gsap.to(el, { opacity:1, x:0, duration:.8, ease:'power2.out', scrollTrigger:{ trigger:el, start:'top 85%', once:true } });
+  });
+
+  // SERVICE CARDS STAGGER
+  gsap.utils.toArray('.svc[data-r]').forEach((el, i) => {
+    gsap.to(el, { opacity:1, y:0, duration:.55, ease:'power2.out', delay:i*.08, scrollTrigger:{ trigger:'.svc-g', start:'top 86%', once:true } });
+  });
+
+  // PROCESS STAGGER + BORDER
+  gsap.utils.toArray('.pst[data-r]').forEach((el, i) => {
+    ScrollTrigger.create({ trigger:'.proc-g', start:'top 85%', once:true,
+      onEnter: () => {
+        gsap.to(el, { opacity:1, y:0, duration:.55, ease:'power2.out', delay:i*.1 });
+        gsap.to(el, { borderTopColor:'var(--p)', duration:.4, delay:i*.1, ease:'power2.out' });
+        gsap.to(el.querySelector('.pst-n'), { color:'var(--p-dim)', duration:.4, delay:i*.1 });
+      }
+    });
+  });
+
+  // WHY STAGGER
+  gsap.utils.toArray('.wi[data-r]').forEach((el, i) => {
+    gsap.to(el, { opacity:1, y:0, duration:.6, ease:'power2.out', delay:i*.1, scrollTrigger:{ trigger:'.why-pts', start:'top 86%', once:true } });
+  });
+
+  // COUNT UP
+  document.querySelectorAll('[data-count]').forEach(el => {
+    const t = parseInt(el.dataset.count), suf = el.dataset.suf || '';
+    const o = { v:0 };
+    ScrollTrigger.create({ trigger:el, start:'top 85%', once:true,
+      onEnter:() => gsap.to(o, { v:t, duration:1.8, ease:'power2.out', onUpdate:() => el.textContent = Math.round(o.v) + suf })
+    });
+  });
+}
+
+// NAV
+document.getElementById('hbg').addEventListener('click', () => {
+  document.getElementById('hbg').classList.toggle('open');
+  document.getElementById('mob-nav').classList.toggle('open');
+});
+function closeMob() { document.getElementById('hbg').classList.remove('open'); document.getElementById('mob-nav').classList.remove('open'); }
+
+// FORM
+document.getElementById('cf').addEventListener('submit', e => {
+  e.preventDefault();
+  document.getElementById('cf').style.display = 'none';
+  document.getElementById('cf-ok').classList.add('show');
+});
+</script>
+</body>
+</html>

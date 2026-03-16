@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bahko Byrå — Pitch Deck</title>
+<link rel="icon" type="image/png" href="/brand/BahkoStudio-removebg-preview.png">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#06061A;--bg2:#0B0B28;--bg3:#11113A;
+  --p:#7C3AED;--p-mid:#9B5CF6;--p-lt:#C4B5FD;
+  --p-dim:rgba(124,58,237,.15);--p-glow:rgba(124,58,237,.07);
+  --border:rgba(139,92,246,.13);--border-md:rgba(139,92,246,.3);
+  --text:#F0EDFF;--text-dim:rgba(240,237,255,.52);--text-faint:rgba(240,237,255,.22);
+  --syne:'Space Grotesk',system-ui,sans-serif;--inter:'Helvetica Now','Helvetica Neue',Helvetica,Arial,sans-serif;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--inter);-webkit-font-smoothing:antialiased}
+
+/* NOISE */
+.noise{position:fixed;inset:0;z-index:999;pointer-events:none;opacity:.025;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:160px}
+
+/* CANVAS */
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+/* DECK ENGINE */
+.deck{position:fixed;inset:0;overflow:hidden;z-index:1}
+.slide{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:clamp(2rem,5vw,4rem);
+  opacity:0;pointer-events:none;
+  transition:opacity .55s cubic-bezier(.4,0,.2,1), transform .55s cubic-bezier(.4,0,.2,1);
+  transform:translateX(60px);
+}
+.slide.active{opacity:1;pointer-events:auto;transform:translateX(0)}
+.slide.out-left{opacity:0;transform:translateX(-60px)}
+
+/* CONTROLS */
+.controls{
+  position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);
+  display:flex;align-items:center;gap:1.2rem;z-index:500
+}
+.ctrl-btn{
+  background:var(--bg2);border:1px solid var(--border-md);color:var(--text-dim);
+  width:40px;height:40px;cursor:pointer;font-size:1rem;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .25s;-webkit-tap-highlight-color:transparent
+}
+.ctrl-btn:hover{border-color:var(--p-mid);color:var(--p-lt);box-shadow:0 0 16px rgba(124,58,237,.2)}
+.slide-dots{display:flex;gap:.5rem;align-items:center}
+.dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--border-md);transition:all .3s;cursor:pointer
+}
+.dot.active{background:var(--p-mid);transform:scale(1.4);box-shadow:0 0 8px rgba(124,58,237,.5)}
+.slide-counter{font-size:.65rem;letter-spacing:.2em;color:var(--text-faint);font-family:var(--inter);min-width:36px;text-align:center}
+
+/* LOGO */
+.deck-logo{
+  position:fixed;top:1.8rem;left:clamp(1.5rem,4vw,3rem);z-index:500;
+  font-family:var(--syne);font-size:.85rem;font-weight:700;
+  letter-spacing:.15em;color:var(--text-faint);text-transform:uppercase
+}
+.deck-logo span{color:var(--p-lt)}
+
+/* PROGRESS BAR */
+.progress-bar{
+  position:fixed;top:0;left:0;right:0;height:2px;z-index:600;
+  background:var(--border);
+}
+.progress-fill{
+  height:100%;background:linear-gradient(90deg,var(--p),var(--p-mid));
+  transition:width .55s cubic-bezier(.4,0,.2,1);
+}
+
+/* COMMON */
+.eyebrow{
+  font-size:.62rem;letter-spacing:.35em;color:var(--p-lt);
+  text-transform:uppercase;margin-bottom:1.2rem;
+  font-family:var(--inter);font-weight:600
+}
+.big-title{
+  font-family:var(--syne);font-size:clamp(3rem,8vw,7.5rem);
+  font-weight:800;line-height:.9;letter-spacing:-.03em;color:var(--text)
+}
+.big-title .accent{
+  background:linear-gradient(135deg,var(--p-lt) 0%,var(--p-mid) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent
+}
+.slide-title{
+  font-family:var(--syne);font-size:clamp(2rem,4.5vw,4rem);
+  font-weight:800;line-height:1.0;letter-spacing:-.025em;color:var(--text);margin-bottom:1.2rem
+}
+.slide-title .accent{
+  background:linear-gradient(135deg,var(--p-lt) 0%,var(--p-mid) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent
+}
+.body-text{
+  font-size:clamp(.85rem,1.2vw,1rem);font-weight:300;
+  color:var(--text-dim);line-height:1.85;max-width:560px;
+  font-family:var(--inter)
+}
+.p-line{
+  width:36px;height:2px;margin:1.4rem 0;
+  background:linear-gradient(90deg,var(--p),var(--p-mid))
+}
+.tag{
+  display:inline-block;padding:.28rem .8rem;
+  border:1px solid var(--border-md);border-radius:20px;
+  font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--p-lt);margin-bottom:1.5rem;font-family:var(--inter);font-weight:600
+}
+
+/* TWO-COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:clamp(3rem,6vw,7rem);align-items:center;width:100%;max-width:1100px}
+
+/* ====== SLIDE SPECIFICS ====== */
+
+/* S1 — COVER */
+.slide-cover{background:radial-gradient(ellipse 80% 60% at 50% 110%, var(--p-glow) 0%, transparent 65%)}
+.slide-cover .big-title{text-align:center;margin-bottom:1.6rem}
+.slide-cover .tagline{
+  font-size:clamp(.85rem,1.3vw,1rem);letter-spacing:.2em;
+  color:var(--text-dim);text-transform:uppercase;font-weight:300;
+  text-align:center
+}
+.cover-date{font-size:.62rem;letter-spacing:.2em;color:var(--text-faint);margin-top:2.5rem;text-align:center}
+.cover-glow{
+  position:absolute;width:500px;height:500px;border-radius:50%;
+  background:radial-gradient(circle,rgba(124,58,237,.12) 0%,transparent 70%);
+  top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none
+}
+
+/* S2 — PROBLEM */
+.prob-items{display:flex;flex-direction:column;gap:.9rem;margin-top:1.8rem}
+.prob-item{
+  display:flex;align-items:flex-start;gap:1rem;padding:1.1rem 1.3rem;
+  border:1px solid var(--border);border-radius:10px;background:var(--bg2);
+  transition:border-color .25s
+}
+.prob-item:hover{border-color:var(--border-md)}
+.prob-icon{font-size:1.1rem;line-height:1;flex-shrink:0;padding-top:.05rem}
+.prob-text{font-size:.85rem;color:var(--text-dim);line-height:1.65;font-weight:300}
+.prob-text strong{color:var(--text);font-weight:500}
+
+/* S3 — SOLUTION */
+.sol-list{display:flex;flex-direction:column;gap:.85rem;margin-top:1.8rem}
+.sol-item{
+  display:flex;align-items:center;gap:1.1rem;padding-bottom:.85rem;
+  border-bottom:1px solid var(--border)
+}
+.sol-item:last-child{border-bottom:none;padding-bottom:0}
+.sol-num{
+  font-family:var(--syne);font-size:1.6rem;font-weight:800;
+  background:linear-gradient(135deg,var(--p-lt),var(--p-mid));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  line-height:1;flex-shrink:0;width:2.2rem
+}
+.sol-info h4{
+  font-family:var(--syne);font-size:.95rem;font-weight:700;
+  color:var(--text);margin-bottom:.2rem
+}
+.sol-info p{font-size:.78rem;color:var(--text-dim);font-weight:300;line-height:1.5}
+
+/* S4 — DEMO */
+.demo-preview{
+  border:1px solid var(--border-md);background:var(--bg2);
+  border-radius:12px;aspect-ratio:16/9;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:1rem;
+  width:100%;max-width:520px;position:relative;overflow:hidden
+}
+.demo-preview::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at center,var(--p-dim) 0%,transparent 70%)
+}
+.demo-dot-grid{
+  position:absolute;inset:0;
+  background-image:radial-gradient(circle,rgba(196,181,253,.08) 1px,transparent 1px);
+  background-size:24px 24px
+}
+.demo-label{
+  position:relative;font-family:var(--syne);font-size:1.4rem;font-weight:800;
+  background:linear-gradient(135deg,var(--p-lt),var(--p-mid));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent
+}
+.demo-sub{position:relative;font-size:.75rem;color:var(--text-dim);letter-spacing:.1em}
+.demo-link{
+  position:relative;
+  display:inline-flex;align-items:center;gap:.5rem;
+  padding:.5rem 1.2rem;background:var(--p-dim);
+  border:1px solid var(--border-md);border-radius:6px;
+  color:var(--p-lt);text-decoration:none;font-size:.75rem;font-weight:600;
+  letter-spacing:.08em;text-transform:uppercase;
+  transition:background .25s,border-color .25s
+}
+.demo-link:hover{background:rgba(124,58,237,.25);border-color:var(--p-mid)}
+
+/* S5 — PRICING */
+.pricing-cards{display:flex;gap:1rem;margin-top:1.8rem;width:100%;max-width:900px;flex-wrap:wrap;justify-content:center}
+.price-card{
+  flex:1;min-width:220px;max-width:280px;
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:14px;padding:1.6rem;
+  display:flex;flex-direction:column;gap:.5rem;
+  transition:border-color .25s, box-shadow .25s;position:relative
+}
+.price-card.featured{border-color:var(--border-md);box-shadow:0 0 32px rgba(124,58,237,.12)}
+.price-card.featured::before{
+  content:'Populärast';position:absolute;top:-1px;left:50%;transform:translateX(-50%);
+  font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;
+  padding:.22rem .8rem;background:linear-gradient(90deg,var(--p),var(--p-mid));
+  color:#fff;border-radius:0 0 6px 6px;font-weight:700;font-family:var(--inter)
+}
+.price-card:hover{border-color:var(--border-md)}
+.price-tier{font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--p-lt);font-weight:700;font-family:var(--inter)}
+.price-name{font-family:var(--syne);font-size:1.3rem;font-weight:800;color:var(--text);margin-top:.2rem}
+.price-amount{
+  font-family:var(--syne);font-size:1.8rem;font-weight:800;
+  background:linear-gradient(135deg,var(--p-lt),var(--p-mid));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:.5rem 0
+}
+.price-sub{font-size:.72rem;color:var(--text-dim)}
+.price-divider{height:1px;background:var(--border);margin:.6rem 0}
+.price-features{list-style:none;display:flex;flex-direction:column;gap:.45rem}
+.price-features li{
+  font-size:.76rem;color:var(--text-dim);display:flex;align-items:center;gap:.6rem
+}
+.price-features li::before{
+  content:'';width:5px;height:5px;border-radius:50%;
+  background:var(--p-mid);flex-shrink:0
+}
+
+/* S6 — RESULTS */
+.result-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1.8rem;width:100%;max-width:700px}
+.r-stat{
+  background:var(--bg2);border:1px solid var(--border);border-radius:12px;
+  padding:1.4rem;text-align:center
+}
+.r-num{
+  font-family:var(--syne);font-size:2.4rem;font-weight:800;
+  background:linear-gradient(135deg,var(--p-lt),var(--p-mid));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  margin-bottom:.3rem
+}
+.r-label{font-size:.74rem;color:var(--text-dim);line-height:1.4}
+.result-bullets{display:flex;flex-direction:column;gap:.8rem;margin-top:1.8rem}
+.r-bullet{
+  display:flex;align-items:center;gap:.9rem;
+  font-size:.88rem;color:var(--text-dim)
+}
+.r-bullet::before{
+  content:'✓';color:var(--p-mid);font-weight:700;
+  font-size:.9rem;flex-shrink:0
+}
+
+/* S7 — PROCESS */
+.process-steps{display:flex;flex-direction:column;gap:1rem;margin-top:1.8rem;width:100%;max-width:560px}
+.proc-step{
+  display:flex;align-items:flex-start;gap:1.2rem;
+  padding:1.2rem;background:var(--bg2);border:1px solid var(--border);
+  border-radius:10px;
+}
+.proc-n{
+  font-family:var(--syne);font-size:1.4rem;font-weight:800;
+  background:linear-gradient(135deg,var(--p-lt),var(--p-mid));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  flex-shrink:0;width:1.8rem;line-height:1
+}
+.proc-body h4{font-family:var(--syne);font-size:.95rem;font-weight:700;color:var(--text);margin-bottom:.25rem}
+.proc-body p{font-size:.78rem;color:var(--text-dim);font-weight:300;line-height:1.55}
+
+/* S8 — CTA */
+.slide-cta{background:radial-gradient(ellipse 80% 60% at 50% 110%, var(--p-glow) 0%, transparent 65%);text-align:center}
+.cta-big{
+  font-family:var(--syne);font-size:clamp(2rem,5vw,5rem);
+  font-weight:800;line-height:.95;letter-spacing:-.025em;
+  margin-bottom:1.5rem
+}
+.cta-big .accent{
+  background:linear-gradient(135deg,var(--p-lt) 0%,var(--p-mid) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent
+}
+.cta-sub{font-size:clamp(.9rem,1.3vw,1rem);color:var(--text-dim);font-weight:300;margin-bottom:2.5rem;max-width:480px;margin-inline:auto}
+.cta-btn{
+  display:inline-flex;align-items:center;gap:.6rem;
+  padding:.9rem 2.2rem;
+  background:linear-gradient(135deg,var(--p),var(--p-mid));
+  border:none;border-radius:8px;color:#fff;font-size:.88rem;
+  font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  cursor:pointer;font-family:var(--inter);
+  box-shadow:0 0 32px rgba(124,58,237,.35);
+  transition:box-shadow .25s,transform .2s
+}
+.cta-btn:hover{box-shadow:0 0 48px rgba(124,58,237,.5);transform:translateY(-2px)}
+.cta-contact{
+  margin-top:1.8rem;font-size:.78rem;color:var(--text-faint);
+  display:flex;align-items:center;gap:1.5rem;justify-content:center
+}
+.cta-contact a{color:var(--text-dim);text-decoration:none;transition:color .2s}
+.cta-contact a:hover{color:var(--p-lt)}
+
+@media(max-width:768px){
+  .two-col{grid-template-columns:1fr;gap:2rem}
+  .pricing-cards{flex-direction:column;align-items:center}
+  .result-stats{grid-template-columns:repeat(2,1fr)}
+  .slide{padding:1.5rem 1.5rem 5rem}
+}
+</style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+<div class="noise"></div>
+
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+<div class="deck-logo">
+  <img src="/brand/BahkoStudio-removebg-preview.png" style="height:26px;width:auto;display:inline-block;vertical-align:middle;margin-right:.5rem;filter:brightness(0) invert(1);opacity:.7" onerror="this.style.display='none'"><span>Bahko</span> Byrå
+</div>
+<div class="controls">
+  <button class="ctrl-btn" id="prev" aria-label="Föregående">&#8592;</button>
+  <div class="slide-dots" id="dots"></div>
+  <span class="slide-counter" id="counter"></span>
+  <button class="ctrl-btn" id="next" aria-label="Nästa">&#8594;</button>
+</div>
+
+<div class="deck">
+
+  <!-- S1: COVER -->
+  <div class="slide slide-cover active">
+    <div class="cover-glow"></div>
+    <p class="eyebrow">Introduktion</p>
+    <h1 class="big-title">Bahko<br><span class="accent">Byrå</span></h1>
+    <p class="tagline">Synlighet som säljer.</p>
+    <p class="cover-date" id="deck-date"></p>
+  </div>
+
+  <!-- S2: PROBLEM -->
+  <div class="slide">
+    <div class="two-col">
+      <div>
+        <p class="eyebrow">Problemet</p>
+        <h2 class="slide-title">Din klinik syns inte.<br><span class="accent">Dina konkurrenter gör det.</span></h2>
+        <div class="p-line"></div>
+        <p class="body-text">80% av svenska konsumenter söker tjänster på Google innan de bokar. Om du inte dyker upp på sidan 1 — finns du inte.</p>
+      </div>
+      <div class="prob-items">
+        <div class="prob-item">
+          <div class="prob-icon">📉</div>
+          <p class="prob-text"><strong>Tomma tider i kalendern.</strong> Trots att du har kompetensen och utrymmet. Problemet är synligheten — inte kvaliteten.</p>
+        </div>
+        <div class="prob-item">
+          <div class="prob-icon">🔍</div>
+          <p class="prob-text"><strong>Förlorar kunder till konkurrenter</strong> med sämre tjänster men bättre digital närvaro.</p>
+        </div>
+        <div class="prob-item">
+          <div class="prob-icon">📱</div>
+          <p class="prob-text"><strong>Hemsidan konverterar inte.</strong> Gamla, långsamma sajter tappar 53% av besökare inom 3 sekunder.</p>
+        </div>
+        <div class="prob-item">
+          <div class="prob-icon">💸</div>
+          <p class="prob-text"><strong>Marknadsföring som inte mäts</strong> är pengar ut i luften. Du vet inte vad som faktiskt fungerar.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S3: SOLUTION -->
+  <div class="slide">
+    <div class="two-col">
+      <div>
+        <p class="eyebrow">Lösningen</p>
+        <h2 class="slide-title">Vi bygger din<br><span class="accent">digitala motor.</span></h2>
+        <div class="p-line"></div>
+        <p class="body-text">Bahko Byrå kombinerar premium-design, SEO-strategi och precis annonsering i ett sammanhängande system — byggt för att fylla din kalender.</p>
+      </div>
+      <div class="sol-list">
+        <div class="sol-item">
+          <div class="sol-num">01</div>
+          <div class="sol-info">
+            <h4>Konverterande Hemsida</h4>
+            <p>Snabb, responsiv, sökmotoroptimerad. Designad för att omvandla besökare till bokningar.</p>
+          </div>
+        </div>
+        <div class="sol-item">
+          <div class="sol-num">02</div>
+          <div class="sol-info">
+            <h4>SEO — Lokal Synlighet</h4>
+            <p>Hamna högt på Google när kunder i din stad söker dina tjänster. Organisk trafik dygnet runt.</p>
+          </div>
+        </div>
+        <div class="sol-item">
+          <div class="sol-num">03</div>
+          <div class="sol-info">
+            <h4>Google & Meta Ads</h4>
+            <p>Precisionsinriktade annonser som når rätt person vid rätt tillfälle. Varje krona mäts.</p>
+          </div>
+        </div>
+        <div class="sol-item">
+          <div class="sol-num">04</div>
+          <div class="sol-info">
+            <h4>Reklamfilm & Innehåll</h4>
+            <p>Professionella videor och bilder som bygger förtroende och ökar konvertering.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S4: DEMO -->
+  <div class="slide">
+    <div class="two-col">
+      <div>
+        <p class="eyebrow">Live Demo</p>
+        <h2 class="slide-title">Så här kan<br><span class="accent">din sajt se ut.</span></h2>
+        <div class="p-line"></div>
+        <p class="body-text">Vi har byggt en komplett prototyp för en estetisk klinik — Élara Klinik. Samma standard, anpassad till din verksamhet och ditt varumärke.</p>
+        <div style="margin-top:1.6rem">
+          <a href="../kliniker/elara-klinik-demo-v2.html" target="_blank" class="demo-link">
+            Se live demo →
+          </a>
+        </div>
+      </div>
+      <div class="demo-preview">
+        <div class="demo-dot-grid"></div>
+        <div class="demo-label">Élara Klinik</div>
+        <div class="demo-sub">Premium estetikklinik — Stockholm</div>
+        <a href="../kliniker/elara-klinik-demo-v2.html" target="_blank" class="demo-link">Öppna demo</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- S5: PRICING -->
+  <div class="slide" style="justify-content:center;text-align:center">
+    <p class="eyebrow">Tjänster &amp; Priser</p>
+    <h2 class="slide-title">Välj din <span class="accent">tillväxtnivå.</span></h2>
+    <div class="pricing-cards">
+      <div class="price-card">
+        <div class="price-tier">Starter</div>
+        <div class="price-name">Bas</div>
+        <div class="price-amount">7 500 kr</div>
+        <div class="price-sub">Engångsbetalning</div>
+        <div class="price-divider"></div>
+        <ul class="price-features">
+          <li>Responsiv hemsida (5 sidor)</li>
+          <li>Grundläggande SEO</li>
+          <li>Kontaktformulär</li>
+          <li>Google Analytics</li>
+          <li>3 månaders support</li>
+        </ul>
+      </div>
+      <div class="price-card featured">
+        <div class="price-tier">Growth</div>
+        <div class="price-name">Premium</div>
+        <div class="price-amount">4 500 kr/mån</div>
+        <div class="price-sub">Månadsavtal, 6 mån min.</div>
+        <div class="price-divider"></div>
+        <ul class="price-features">
+          <li>Premium hemsida (10+ sidor)</li>
+          <li>Lokal SEO — sida 1 garanti</li>
+          <li>Google Ads-hantering</li>
+          <li>Månadsrapport + KPI</li>
+          <li>Löpande uppdateringar</li>
+          <li>Prioriterad support</li>
+        </ul>
+      </div>
+      <div class="price-card">
+        <div class="price-tier">Full Scale</div>
+        <div class="price-name">Komplett</div>
+        <div class="price-amount">12 000 kr/mån</div>
+        <div class="price-sub">Komplett digital partner</div>
+        <div class="price-divider"></div>
+        <ul class="price-features">
+          <li>Allt i Premium</li>
+          <li>Meta Ads (Instagram + FB)</li>
+          <li>Reklamfilm / UGC-video</li>
+          <li>Content-kalender</li>
+          <li>Dedicated account manager</li>
+          <li>Veckorapporter + strategi</li>
+          <li>Mobil app</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- S6: RESULTS -->
+  <div class="slide">
+    <div class="two-col">
+      <div>
+        <p class="eyebrow">Resultat</p>
+        <h2 class="slide-title">Vad du<br><span class="accent">faktiskt får.</span></h2>
+        <div class="p-line"></div>
+        <p class="body-text">Inga tomma löften. Vi levererar mätbara resultat med tydliga KPI:er varje månad — fler bokningar, lägre kostnad per kund, starkare varumärke.</p>
+      </div>
+      <div>
+        <div class="result-stats">
+          <div class="r-stat">
+            <div class="r-num">+300%</div>
+            <div class="r-label">Mer organisk trafik på 6 månader</div>
+          </div>
+          <div class="r-stat">
+            <div class="r-num">4.8×</div>
+            <div class="r-label">Genomsnittlig ROAS på Google Ads</div>
+          </div>
+          <div class="r-stat">
+            <div class="r-num">-60%</div>
+            <div class="r-label">Lägre kostnad per ny kund</div>
+          </div>
+        </div>
+        <div class="result-bullets" style="margin-top:1.2rem">
+          <div class="r-bullet">Fler bokningar direkt från hemsidan</div>
+          <div class="r-bullet">Högt Google-rankade för lokala sökord</div>
+          <div class="r-bullet">Professionellt varumärke som skapar förtroende</div>
+          <div class="r-bullet">Komplett spårning av varje marknadsföringskrona</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S7: PROCESS -->
+  <div class="slide">
+    <div class="two-col">
+      <div>
+        <p class="eyebrow">Vår Process</p>
+        <h2 class="slide-title">Från noll till<br><span class="accent">fullt synlig.</span></h2>
+        <div class="p-line"></div>
+        <p class="body-text">Ett strukturerat 4-stegsprogram som tar dig från osynlig till marknadsledare i din stad — på 30 dagar.</p>
+      </div>
+      <div class="process-steps">
+        <div class="proc-step">
+          <div class="proc-n">1</div>
+          <div class="proc-body">
+            <h4>Analys &amp; Strategi</h4>
+            <p>Vi kartlägger din marknad, konkurrenter och nuläge. Bygger en skräddarsydd plan.</p>
+          </div>
+        </div>
+        <div class="proc-step">
+          <div class="proc-n">2</div>
+          <div class="proc-body">
+            <h4>Design &amp; Produktion</h4>
+            <p>Hemsida, annonsmaterial och SEO-struktur byggs enligt din brandidentitet.</p>
+          </div>
+        </div>
+        <div class="proc-step">
+          <div class="proc-n">3</div>
+          <div class="proc-body">
+            <h4>Lansering &amp; Aktivering</h4>
+            <p>Live på 30 dagar. Annonser startade. Google indexerat. Trafik på väg.</p>
+          </div>
+        </div>
+        <div class="proc-step">
+          <div class="proc-n">4</div>
+          <div class="proc-body">
+            <h4>Tillväxt &amp; Optimering</h4>
+            <p>Löpande A/B-testning, rapportering och skalning baserat på data.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S8: CTA -->
+  <div class="slide slide-cta">
+    <div class="cover-glow"></div>
+    <p class="eyebrow">Nästa steg</p>
+    <h2 class="cta-big">Redo att fylla<br>din <span class="accent">kalender?</span></h2>
+    <p class="cta-sub">Boka ett kostnadsfritt 30-minuters samtal. Vi går igenom din nuläge och visar exakt vad vi kan göra för din klinik.</p>
+    <button class="cta-btn" onclick="window.open('https://bahkobyra.se/boka','_blank')">
+      Boka Gratis Samtal →
+    </button>
+    <div class="cta-contact">
+      <a href="mailto:info@bahkobyra.se">info@bahkobyra.se</a>
+      <span style="color:var(--border-md)">|</span>
+      <a href="https://bahkobyra.se">bahkobyra.se</a>
+    </div>
+  </div>
+
+</div><!-- /deck -->
+
+<script>
+const slides = document.querySelectorAll('.slide');
+const dotsEl = document.getElementById('dots');
+const counterEl = document.getElementById('counter');
+const progressEl = document.getElementById('progress');
+const total = slides.length;
+let cur = 0;
+
+// Dots
+slides.forEach((_,i) => {
+  const d = document.createElement('button');
+  d.className = 'dot' + (i===0?' active':'');
+  d.setAttribute('aria-label', `Slide ${i+1}`);
+  d.onclick = () => goTo(i);
+  dotsEl.appendChild(d);
+});
+
+// Date
+document.getElementById('deck-date').textContent =
+  new Date().toLocaleDateString('sv-SE',{year:'numeric',month:'long',day:'numeric'});
+
+function update() {
+  document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('active', i===cur));
+  counterEl.textContent = `${cur+1} / ${total}`;
+  progressEl.style.width = `${((cur+1)/total)*100}%`;
+}
+
+function goTo(n) {
+  if (n === cur) return;
+  slides[cur].classList.remove('active');
+  slides[cur].classList.add('out-left');
+  setTimeout(() => slides[cur >= n ? cur : cur].classList.remove('out-left'), 600);
+  // Handle direction
+  const going = n > cur ? 1 : -1;
+  if (going < 0) { slides[cur].style.transform = 'translateX(60px)'; }
+  slides[cur].classList.remove('active');
+  const prev = cur;
+  cur = Math.max(0, Math.min(total-1, n));
+  slides[prev].style.transform = going > 0 ? 'translateX(-60px)' : 'translateX(60px)';
+  slides[prev].style.opacity = '0';
+  slides[prev].style.pointerEvents = 'none';
+  setTimeout(() => { slides[prev].style.transform = ''; slides[prev].style.opacity = ''; }, 600);
+  slides[cur].classList.add('active');
+  update();
+}
+
+function next() { if (cur < total-1) goTo(cur+1); }
+function prev() { if (cur > 0) goTo(cur-1); }
+
+document.getElementById('next').onclick = next;
+document.getElementById('prev').onclick = prev;
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next();
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') prev();
+});
+
+// Touch swipe
+let tx = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+document.addEventListener('touchend', e => {
+  const dx = tx - e.changedTouches[0].clientX;
+  if (Math.abs(dx) > 50) dx > 0 ? next() : prev();
+});
+
+update();
+
+// BG canvas
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+let W, H, orbs;
+function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+function initOrbs() {
+  orbs = [
+    {x:W*.1,y:H*.2,r:400,c:[124,58,237],s:.00022,ox:W*.1,oy:H*.2},
+    {x:W*.9,y:H*.8,r:360,c:[155,92,246],s:.0003,ox:W*.9,oy:H*.8},
+    {x:W*.5,y:H*.5,r:250,c:[196,181,253],s:.00015,ox:W*.5,oy:H*.5},
+  ];
+}
+function draw(t) {
+  ctx.clearRect(0,0,W,H);
+  orbs.forEach(o => {
+    o.x = o.ox + Math.sin(t*o.s)*80; o.y = o.oy + Math.cos(t*o.s*1.3)*60;
+    const g = ctx.createRadialGradient(o.x,o.y,0,o.x,o.y,o.r);
+    g.addColorStop(0,`rgba(${o.c[0]},${o.c[1]},${o.c[2]},0.06)`);
+    g.addColorStop(1,'transparent');
+    ctx.beginPath(); ctx.arc(o.x,o.y,o.r,0,Math.PI*2);
+    ctx.fillStyle=g; ctx.fill();
+  });
+  requestAnimationFrame(draw);
+}
+resize(); initOrbs();
+window.addEventListener('resize', () => { resize(); initOrbs(); });
+requestAnimationFrame(draw);
+</script>
+</body>
+</html>

@@ -4,3 +4,6 @@ credentials.json
 token.json
 __pycache__/
 *.pyc
+data/leads.json
+data/leads_enriched.json
+node_modules/

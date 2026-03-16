@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ÉLARA KLINIK — Naturlig Skönhet, Förhöjd</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#06061A;
+  --bg-warm:#0B0B28;
+  --cream:#F0EDFF;
+  --gold:#9B5CF6;
+  --gold-light:#C4B5FD;
+  --rose:#A78BFA;
+  --text-primary:#F0EDFF;
+  --text-secondary:rgba(240,237,255,.5);
+  --text-muted:rgba(240,237,255,.28);
+  --font-display:'Cormorant Garamond',serif;
+  --font-body:'Inter',sans-serif;
+}
+html{background:var(--bg)}
+body{background:var(--bg);color:var(--text-primary);font-family:var(--font-body);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* ===== LOADER ===== */
+#loader{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .6s ease,visibility .6s ease}
+#loader.hidden{opacity:0;visibility:hidden;pointer-events:none}
+.loader-brand{font-family:var(--font-display);font-size:clamp(2rem,5vw,3.5rem);font-weight:300;letter-spacing:.3em;color:var(--cream);margin-bottom:3rem;text-transform:uppercase}
+#loader-bar-wrap{width:min(300px,60vw);height:1px;background:rgba(139,92,246,.2);border-radius:1px;overflow:hidden}
+#loader-bar{width:0%;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-light));transition:width .3s ease}
+#loader-percent{font-family:var(--font-body);font-size:.75rem;letter-spacing:.2em;color:var(--text-muted);margin-top:1.2rem;font-weight:300}
+
+/* ===== HEADER ===== */
+.site-header{position:fixed;top:0;left:0;right:0;z-index:100;padding:1.8rem 3vw;display:flex;justify-content:space-between;align-items:center}
+.site-header.scrolled{background:rgba(6,6,26,.88);backdrop-filter:blur(20px);border-bottom:1px solid rgba(139,92,246,.1)}
+.header-logo{font-family:var(--font-display);font-size:1.1rem;font-weight:400;letter-spacing:.35em;color:var(--cream);text-transform:uppercase;text-decoration:none}
+.header-nav{display:flex;gap:2.5rem;align-items:center}
+.header-nav a{font-family:var(--font-body);font-size:.7rem;font-weight:300;letter-spacing:.2em;color:var(--cream);text-decoration:none;text-transform:uppercase;opacity:.7;transition:opacity .3s}
+.header-nav a:hover{opacity:1}
+
+/* Hamburger */
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;background:none;border:none;z-index:200}
+.hamburger span{display:block;width:22px;height:1px;background:var(--cream);transition:all .3s ease}
+.hamburger.open span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+.mobile-nav{position:fixed;inset:0;background:rgba(6,6,26,.97);backdrop-filter:blur(20px);z-index:150;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2.5rem;opacity:0;visibility:hidden;transition:all .4s ease}
+.mobile-nav.open{opacity:1;visibility:visible}
+.mobile-nav a{font-family:var(--font-display);font-size:2.5rem;font-weight:300;letter-spacing:.15em;color:var(--cream);text-decoration:none;text-transform:uppercase;opacity:.7;transition:opacity .3s}
+.mobile-nav a:hover{opacity:1;color:var(--gold)}
+
+/* ===== HERO ===== */
+.hero-standalone{position:relative;width:100%;height:100vh;background:var(--bg);display:flex;align-items:center;justify-content:center;overflow:hidden;z-index:10}
+.hero-bg-gradient{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(124,58,237,.07) 0%,transparent 70%)}
+.hero-content{position:relative;text-align:center;padding:0 5vw}
+.hero-label{display:block;font-family:var(--font-body);font-size:.65rem;font-weight:300;letter-spacing:.4em;color:var(--gold);text-transform:uppercase;margin-bottom:2rem;opacity:0}
+.hero-heading{font-family:var(--font-display);font-size:clamp(3rem,12vw,12rem);font-weight:300;line-height:.9;letter-spacing:-.02em;color:var(--cream);margin-bottom:1.5rem}
+.hero-heading .word{display:inline-block;opacity:0;transform:translateY(60px)}
+.hero-tagline{font-family:var(--font-body);font-size:clamp(.8rem,1.2vw,1rem);font-weight:200;letter-spacing:.15em;color:var(--text-secondary);text-transform:uppercase;opacity:0}
+.hero-scroll-indicator{position:absolute;bottom:3rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.8rem;opacity:0}
+.hero-scroll-indicator span{font-size:.6rem;letter-spacing:.3em;color:var(--text-muted);text-transform:uppercase;font-weight:300}
+.scroll-arrow{width:1px;height:40px;position:relative;overflow:hidden}
+.scroll-arrow::after{content:'';position:absolute;top:-100%;left:0;width:1px;height:100%;background:var(--gold);animation:scrollDown 2s ease-in-out infinite}
+@keyframes scrollDown{0%{top:-100%}50%{top:0}100%{top:100%}}
+
+/* ===== CANVAS ===== */
+.canvas-wrap{position:fixed;top:0;left:0;width:100%;height:100%;z-index:1;clip-path:circle(0% at 50% 50%);will-change:clip-path}
+.canvas-wrap canvas{width:100%;height:100%;display:block}
+
+/* ===== DARK OVERLAY ===== */
+#dark-overlay{position:fixed;inset:0;background:var(--bg);opacity:0;z-index:3;pointer-events:none;will-change:opacity}
+
+/* ===== MARQUEE ===== */
+.marquee-wrap{position:fixed;z-index:4;pointer-events:none;width:100%;opacity:0;will-change:opacity}
+.marquee-wrap.marquee-top{top:15%;left:0}
+.marquee-text{white-space:nowrap;font-family:var(--font-display);font-size:clamp(4rem,12vw,14vw);font-weight:300;font-style:italic;color:transparent;-webkit-text-stroke:1px rgba(201,169,110,.25);letter-spacing:.02em;will-change:transform}
+
+/* ===== SCROLL CONTAINER ===== */
+#scroll-container{position:relative;width:100%;height:900vh;z-index:5}
+
+/* ===== SECTIONS ===== */
+.scroll-section{position:absolute;width:100%;display:flex;align-items:center;opacity:0;visibility:hidden;transition:none;will-change:transform,opacity}
+.scroll-section.active{opacity:1;visibility:visible}
+.section-content{min-height:auto;padding:2rem 0}
+.align-left{padding-left:5vw;padding-right:50vw}
+.align-right{padding-left:50vw;padding-right:5vw}
+.align-left .section-inner,.align-right .section-inner{max-width:42vw}
+.section-label{display:block;font-family:var(--font-body);font-size:.6rem;font-weight:300;letter-spacing:.4em;color:var(--gold);text-transform:uppercase;margin-bottom:1.2rem}
+.section-heading{font-family:var(--font-display);font-size:clamp(2rem,4.5vw,4.5rem);font-weight:300;line-height:1.05;color:var(--cream);margin-bottom:1.2rem;letter-spacing:-.01em}
+.section-body{font-family:var(--font-body);font-size:clamp(.85rem,1vw,1rem);font-weight:200;line-height:1.8;color:var(--text-secondary);max-width:480px}
+.section-note{font-family:var(--font-display);font-style:italic;font-size:clamp(.95rem,1.2vw,1.15rem);color:var(--gold-light);margin-top:1.2rem;font-weight:300}
+
+/* ===== BEFORE/AFTER ===== */
+.section-beforeafter{justify-content:center;padding:0 5vw}
+.ba-container{position:relative;width:min(700px,80vw);aspect-ratio:3/4;border-radius:4px;overflow:hidden;cursor:ew-resize}
+.ba-side{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:clamp(1.5rem,3vw,3rem);font-weight:300}
+.ba-before{background:linear-gradient(135deg,#0e0e30 0%,#0B0B28 50%,#0e0e30 100%);color:var(--text-muted);z-index:1}
+.ba-before::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(139,92,246,.08) 0%,transparent 60%)}
+.ba-after{background:linear-gradient(135deg,#0B0B28 0%,#13103a 50%,#0B0B28 100%);clip-path:inset(0 100% 0 0);z-index:2}
+.ba-after::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(155,92,246,.18) 0%,transparent 60%)}
+.ba-before-label,.ba-after-label{position:absolute;bottom:2rem;font-family:var(--font-body);font-size:.6rem;letter-spacing:.35em;text-transform:uppercase;font-weight:300;z-index:5}
+.ba-before-label{left:2rem;color:var(--text-muted)}
+.ba-after-label{right:2rem;color:var(--gold)}
+.ba-line{position:absolute;top:0;bottom:0;width:1px;background:var(--gold);z-index:10;left:0%;transition:none;box-shadow:0 0 8px rgba(155,92,246,.5)}
+.ba-line::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:40px;height:40px;border:1px solid var(--gold);border-radius:50%;background:rgba(6,6,26,.7);backdrop-filter:blur(4px)}
+.ba-line::after{content:'⟷';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:var(--gold);font-size:.7rem}
+.ba-heading{position:absolute;top:-4rem;left:0;right:0;text-align:center;z-index:5}
+.ba-heading .section-label{margin-bottom:.6rem}
+.ba-heading .section-heading{font-size:clamp(1.5rem,3vw,3rem)}
+
+/* ===== STATS ===== */
+.section-stats{justify-content:center;text-align:center;padding:0 5vw}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(1.5rem,4vw,4rem);max-width:900px;width:100%}
+.stat{display:flex;flex-direction:column;align-items:center;gap:.3rem}
+.stat-number{font-family:var(--font-display);font-size:clamp(2.5rem,5vw,5rem);font-weight:300;color:var(--cream);line-height:1}
+.stat-suffix{font-family:var(--font-display);font-size:clamp(1.2rem,2vw,2rem);font-weight:300;color:var(--gold);margin-left:.1em;display:inline}
+.stat-label{font-family:var(--font-body);font-size:.6rem;letter-spacing:.25em;text-transform:uppercase;color:var(--text-muted);font-weight:300;margin-top:.3rem}
+
+/* ===== TREATMENTS ===== */
+.treatments-list{display:flex;flex-direction:column;gap:1.8rem}
+.treatment-item{display:flex;align-items:baseline;gap:1rem;padding-bottom:1.2rem;border-bottom:1px solid rgba(139,92,246,.12)}
+.treatment-name{font-family:var(--font-display);font-size:clamp(1.1rem,1.8vw,1.6rem);font-weight:400;color:var(--cream);flex:1}
+.treatment-price{font-family:var(--font-body);font-size:.75rem;letter-spacing:.15em;color:var(--gold);font-weight:300}
+.treatment-time{font-family:var(--font-body);font-size:.7rem;color:var(--text-muted);font-weight:200}
+
+/* ===== CTA ===== */
+.section-cta{justify-content:center;text-align:center;padding:0 5vw}
+.cta-inner{display:flex;flex-direction:column;align-items:center;gap:1.5rem}
+.cta-button{display:inline-flex;align-items:center;gap:.8rem;font-family:var(--font-body);font-size:.7rem;font-weight:600;letter-spacing:.25em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#7C3AED,#9B5CF6);padding:1.1rem 3rem;border:none;cursor:pointer;text-decoration:none;border-radius:6px;box-shadow:0 0 28px rgba(124,58,237,.3);transition:box-shadow .3s,transform .25s}
+.cta-button:hover{box-shadow:0 0 40px rgba(124,58,237,.5);transform:scale(1.03)}
+.cta-button svg{width:14px;height:14px;stroke:currentColor;stroke-width:2;fill:none}
+.cta-sub{font-size:.65rem;letter-spacing:.2em;color:var(--text-muted);font-weight:200;text-transform:uppercase}
+
+/* ===== FLOATING BOOK BUTTON ===== */
+#float-boka{position:fixed;bottom:2.5rem;right:2.5rem;z-index:90;background:linear-gradient(135deg,#7C3AED,#9B5CF6);color:#fff;font-family:var(--font-body);font-size:.65rem;font-weight:600;letter-spacing:.25em;text-transform:uppercase;padding:.85rem 1.8rem;border:none;cursor:pointer;border-radius:6px;opacity:0;transform:translateY(20px);transition:all .4s ease;pointer-events:none;box-shadow:0 4px 24px rgba(124,58,237,.35)}
+#float-boka.visible{opacity:1;transform:translateY(0);pointer-events:auto}
+#float-boka:hover{box-shadow:0 4px 32px rgba(124,58,237,.55);transform:scale(1.04)}
+
+/* ===== BOOKING MODAL ===== */
+.modal-overlay{position:fixed;inset:0;z-index:500;background:rgba(6,6,26,.88);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:all .4s ease;padding:1rem}
+.modal-overlay.visible{opacity:1;visibility:visible}
+.modal-box{background:#0B0B28;border:1px solid rgba(139,92,246,.18);border-radius:14px;max-width:520px;width:100%;padding:3rem;position:relative;max-height:90vh;overflow-y:auto}
+.modal-close{position:absolute;top:1.5rem;right:1.5rem;background:none;border:none;color:var(--text-muted);font-size:1.2rem;cursor:pointer;line-height:1;transition:color .3s;padding:4px}
+.modal-close:hover{color:var(--gold-light)}
+.modal-eyebrow{font-family:var(--font-body);font-size:.6rem;letter-spacing:.35em;color:var(--gold-light);text-transform:uppercase;margin-bottom:1rem}
+.modal-title{font-family:var(--font-display);font-size:clamp(1.8rem,4vw,2.8rem);font-weight:300;color:var(--cream);margin-bottom:.5rem;line-height:1.1}
+.modal-sub{font-size:.85rem;color:var(--text-secondary);font-weight:200;margin-bottom:2rem;line-height:1.6}
+.modal-form{display:flex;flex-direction:column;gap:1.2rem}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.form-field{display:flex;flex-direction:column;gap:.5rem}
+.form-field label{font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-muted);font-weight:300}
+.form-field input,.form-field select,.form-field textarea{background:rgba(139,92,246,.05);border:1px solid rgba(139,92,246,.15);color:var(--cream);font-family:var(--font-body);font-size:.9rem;font-weight:300;padding:.8rem 1rem;width:100%;outline:none;border-radius:6px;transition:border-color .3s;-webkit-appearance:none}
+.form-field select{background-color:#0B0B28;cursor:pointer}
+.form-field input:focus,.form-field select:focus,.form-field textarea:focus{border-color:rgba(155,92,246,.5)}
+.form-field textarea{resize:vertical;min-height:90px}
+.form-submit{background:linear-gradient(135deg,#7C3AED,#9B5CF6);color:#fff;font-family:var(--font-body);font-size:.7rem;letter-spacing:.25em;text-transform:uppercase;font-weight:600;padding:1rem 2rem;border:none;cursor:pointer;border-radius:6px;box-shadow:0 0 20px rgba(124,58,237,.3);transition:box-shadow .3s,transform .2s;margin-top:.5rem;width:100%}
+.form-submit:hover{box-shadow:0 0 32px rgba(124,58,237,.5);transform:scale(1.02)}
+.modal-success{text-align:center;padding:2rem 0;display:none}
+.modal-success.visible{display:block}
+.success-icon{font-size:2.5rem;color:var(--gold-light);margin-bottom:1rem}
+.success-title{font-family:var(--font-display);font-size:2rem;font-weight:300;color:var(--cream);margin-bottom:.75rem}
+.success-msg{color:var(--text-secondary);font-size:.9rem;font-weight:200}
+
+/* ===== VISUAL ELEMENTS ===== */
+.floating-circle{position:fixed;border-radius:50%;pointer-events:none;z-index:2;opacity:0;will-change:transform}
+.floating-circle.c1{width:clamp(300px,40vw,600px);height:clamp(300px,40vw,600px);background:radial-gradient(circle,rgba(124,58,237,.06) 0%,transparent 70%);top:20%;right:-10%}
+.floating-circle.c2{width:clamp(200px,30vw,450px);height:clamp(200px,30vw,450px);background:radial-gradient(circle,rgba(196,181,253,.04) 0%,transparent 70%);bottom:10%;left:-5%}
+
+/* ===== GRAIN ===== */
+.grain{position:fixed;inset:0;z-index:999;pointer-events:none;opacity:.035;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");background-repeat:repeat;background-size:256px 256px}
+
+
+/* ===== MOBILE ===== */
+@media(max-width:768px){
+  .header-nav{display:none}
+  .hamburger{display:flex}
+  .align-left,.align-right{padding-left:6vw;padding-right:6vw}
+  .align-left .section-inner,.align-right .section-inner{max-width:100%}
+  .scroll-section.section-content .section-inner{background:rgba(6,6,26,.8);backdrop-filter:blur(8px);padding:2rem;border-radius:8px;border:1px solid rgba(139,92,246,.08)}
+  .stats-grid{grid-template-columns:repeat(2,1fr);gap:2rem}
+  #scroll-container{height:600vh}
+  .ba-container{width:90vw}
+  .marquee-text{font-size:15vw !important}
+  .hero-heading{font-size:clamp(3rem,14vw,6rem) !important}
+  .form-row{grid-template-columns:1fr}
+  #float-boka{bottom:1.5rem;right:1.5rem}
+.modal-box{padding:2rem 1.5rem}
+}
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-brand">Élara</div>
+  <div id="loader-bar-wrap"><div id="loader-bar"></div></div>
+  <div id="loader-percent">0%</div>
+</div>
+
+<!-- GRAIN -->
+<div class="grain"></div>
+
+<!-- MOBILE NAV -->
+<nav class="mobile-nav" id="mobile-nav">
+  <a href="#" onclick="closeMobileNav()">Behandlingar</a>
+  <a href="#" onclick="closeMobileNav()">Om Oss</a>
+  <a href="#" onclick="closeMobileNav()">Resultat</a>
+  <a href="#" onclick="openModal();closeMobileNav()">Boka Tid</a>
+</nav>
+
+<!-- HEADER -->
+<header class="site-header" id="site-header">
+  <a href="#" class="header-logo">Élara Klinik</a>
+  <nav class="header-nav">
+    <a href="#">Behandlingar</a>
+    <a href="#">Om Oss</a>
+    <a href="#">Resultat</a>
+    <a href="#" onclick="openModal();return false">Boka Tid</a>
+  </nav>
+  <button class="hamburger" id="hamburger" onclick="toggleMobileNav()" aria-label="Meny">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+
+<!-- HERO -->
+<section class="hero-standalone">
+  <div class="hero-bg-gradient"></div>
+  <div class="hero-content">
+    <span class="hero-label">Estetisk Klinik — Stockholm</span>
+    <h1 class="hero-heading">
+      <span class="word">Naturlig</span> <span class="word">Skönhet,</span><br>
+      <span class="word">Förhöjd</span>
+    </h1>
+    <p class="hero-tagline">Licensierade specialister · Evidensbaserade behandlingar · Sedan 2016</p>
+  </div>
+  <div class="hero-scroll-indicator">
+    <span>Utforska</span>
+    <div class="scroll-arrow"></div>
+  </div>
+</section>
+
+<!-- CANVAS -->
+<div class="canvas-wrap"><canvas id="canvas"></canvas></div>
+<div class="floating-circle c1"></div>
+<div class="floating-circle c2"></div>
+<div id="dark-overlay"></div>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap marquee-top" data-scroll-speed="-20" data-enter="15" data-leave="85">
+  <div class="marquee-text">Naturlig Skönhet — Förhöjd Elegans — Tidlös Utstrålning —&nbsp;</div>
+</div>
+
+<!-- SCROLL CONTAINER -->
+<div id="scroll-container">
+
+  <section class="scroll-section section-content align-left" data-enter="12" data-leave="25" data-animation="slide-left">
+    <div class="section-inner">
+      <span class="section-label">001 / Filosofi</span>
+      <h2 class="section-heading">Skönhet som<br>andas naturlighet</h2>
+      <p class="section-body">Vi tror på att förstärka det som redan finns — aldrig att förändra. Varje behandling börjar med en djupgående konsultation där vi kartlägger din unika ansiktsanatomi och skapar en personlig behandlingsplan.</p>
+      <p class="section-note">"Mindre är mer, men precision är allt."</p>
+    </div>
+  </section>
+
+  <section class="scroll-section section-beforeafter" data-enter="26" data-leave="42" data-animation="fade-up">
+    <div style="position:relative">
+      <div class="ba-heading">
+        <span class="section-label">002 / Resultat</span>
+        <h2 class="section-heading">Verkliga Resultat</h2>
+      </div>
+      <div class="ba-container" id="ba-container">
+        <div class="ba-side ba-before">
+          <div style="text-align:center;z-index:2;position:relative">
+            <div style="width:120px;height:120px;border-radius:50%;border:1px solid rgba(107,97,89,.3);margin:0 auto 1rem;display:flex;align-items:center;justify-content:center">
+              <span style="font-size:.7rem;letter-spacing:.2em;color:var(--text-muted);font-family:var(--font-body);text-transform:uppercase">Före</span>
+            </div>
+          </div>
+          <span class="ba-before-label">Före behandling</span>
+        </div>
+        <div class="ba-side ba-after" id="ba-after">
+          <div style="text-align:center;z-index:2;position:relative">
+            <div style="width:120px;height:120px;border-radius:50%;border:1px solid rgba(201,169,110,.4);margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;box-shadow:0 0 60px rgba(201,169,110,.08)">
+              <span style="font-size:.7rem;letter-spacing:.2em;color:var(--gold);font-family:var(--font-body);text-transform:uppercase">Efter</span>
+            </div>
+          </div>
+          <span class="ba-after-label">Efter behandling</span>
+        </div>
+        <div class="ba-line" id="ba-line"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="scroll-section section-content align-right" data-enter="43" data-leave="57" data-animation="slide-right">
+    <div class="section-inner">
+      <span class="section-label">003 / Behandlingar</span>
+      <h2 class="section-heading">Skräddarsydda<br>behandlingar</h2>
+      <div class="treatments-list">
+        <div class="treatment-item">
+          <span class="treatment-name">Läppförstoring</span>
+          <span class="treatment-price">från 3 900 kr</span>
+          <span class="treatment-time">30 min</span>
+        </div>
+        <div class="treatment-item">
+          <span class="treatment-name">Botox — Panna & Ögonområde</span>
+          <span class="treatment-price">från 2 800 kr</span>
+          <span class="treatment-time">20 min</span>
+        </div>
+        <div class="treatment-item">
+          <span class="treatment-name">Hudföryngring PRX-T33</span>
+          <span class="treatment-price">från 2 500 kr</span>
+          <span class="treatment-time">45 min</span>
+        </div>
+        <div class="treatment-item">
+          <span class="treatment-name">Käklinjekonturering</span>
+          <span class="treatment-price">från 5 200 kr</span>
+          <span class="treatment-time">40 min</span>
+        </div>
+        <div class="treatment-item">
+          <span class="treatment-name">Profhilo — Bioremodellering</span>
+          <span class="treatment-price">från 4 800 kr</span>
+          <span class="treatment-time">30 min</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="scroll-section section-stats" data-enter="58" data-leave="72" data-animation="stagger-up">
+    <div class="stats-grid">
+      <div class="stat">
+        <div><span class="stat-number" data-value="4200" data-decimals="0">0</span></div>
+        <span class="stat-label">Behandlingar utförda</span>
+      </div>
+      <div class="stat">
+        <div><span class="stat-number" data-value="8" data-decimals="0">0</span><span class="stat-suffix"> år</span></div>
+        <span class="stat-label">Klinisk erfarenhet</span>
+      </div>
+      <div class="stat">
+        <div><span class="stat-number" data-value="4.9" data-decimals="1">0</span><span class="stat-suffix"> ★</span></div>
+        <span class="stat-label">Snittbetyg Google</span>
+      </div>
+      <div class="stat">
+        <div><span class="stat-number" data-value="98" data-decimals="0">0</span><span class="stat-suffix">%</span></div>
+        <span class="stat-label">Nöjda patienter</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="scroll-section section-content align-left" data-enter="73" data-leave="85" data-animation="clip-reveal">
+    <div class="section-inner">
+      <span class="section-label">005 / Teamet</span>
+      <h2 class="section-heading">Licensierade<br>specialister</h2>
+      <p class="section-body">Alla våra behandlare är legitimerade sjuksköterskor med vidareutbildning inom estetisk medicin. Vi är registrerade hos IVO och följer LEKEI:s riktlinjer för säker estetisk vård.</p>
+      <p class="section-body" style="margin-top:.8rem">Kontinuerlig fortbildning genom internationella masterclasses säkerställer att vi alltid arbetar med de senaste, evidensbaserade teknikerna.</p>
+    </div>
+  </section>
+
+  <section class="scroll-section section-cta" data-enter="86" data-leave="100" data-animation="scale-up" data-persist="true">
+    <div class="cta-inner">
+      <span class="section-label">Redo?</span>
+      <h2 class="section-heading" style="font-size:clamp(2.5rem,6vw,6rem)">Boka din<br>kostnadsfria<br>konsultation</h2>
+      <button class="cta-button" onclick="openModal()">
+        Boka Tid
+        <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+      <span class="cta-sub">Svar inom 24 timmar · Ingen bindningstid</span>
+    </div>
+  </section>
+
+</div>
+
+<!-- FLOATING BOOK BUTTON -->
+<button id="float-boka" onclick="openModal()">Boka konsultation</button>
+
+
+<!-- BOOKING MODAL -->
+<div class="modal-overlay" id="boka-modal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal()" aria-label="Stäng">✕</button>
+    <div id="modal-form-wrap">
+      <div class="modal-eyebrow">Élara Klinik</div>
+      <h2 class="modal-title">Boka din<br>konsultation</h2>
+      <p class="modal-sub">Fyll i dina uppgifter så återkommer vi inom 24 timmar. Konsultationen är kostnadsfri och utan bindning.</p>
+      <form class="modal-form" id="boka-form" onsubmit="submitForm(event)">
+        <div class="form-row">
+          <div class="form-field">
+            <label>Namn</label>
+            <input type="text" placeholder="Ditt fullständiga namn" required>
+          </div>
+          <div class="form-field">
+            <label>Telefon</label>
+            <input type="tel" placeholder="+46 70 000 00 00">
+          </div>
+        </div>
+        <div class="form-field">
+          <label>E-post</label>
+          <input type="email" placeholder="din@epost.se" required>
+        </div>
+        <div class="form-field">
+          <label>Behandling</label>
+          <select>
+            <option value="">Välj behandling...</option>
+            <option>Läppförstoring</option>
+            <option>Botox — Panna & Ögonområde</option>
+            <option>Hudföryngring PRX-T33</option>
+            <option>Käklinjekonturering</option>
+            <option>Profhilo — Bioremodellering</option>
+            <option>Annan / Vet ej ännu</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Meddelande (valfritt)</label>
+          <textarea placeholder="Berätta gärna om dina önskemål eller frågor..."></textarea>
+        </div>
+        <button type="submit" class="form-submit">Skicka förfrågan →</button>
+      </form>
+    </div>
+    <div class="modal-success" id="modal-success">
+      <div class="success-icon">✓</div>
+      <h3 class="success-title">Tack för din förfrågan!</h3>
+      <p class="success-msg">Vi återkommer inom 24 timmar.<br>Välkommen till Élara Klinik.</p>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/lenis@1/dist/lenis.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  // ===== LENIS =====
+  const lenis = new Lenis({ duration:1.4, easing:t=>Math.min(1,1.001-Math.pow(2,-10*t)), smoothWheel:true });
+  lenis.on("scroll", ScrollTrigger.update);
+  gsap.ticker.add(time => lenis.raf(time*1000));
+  gsap.ticker.lagSmoothing(0);
+
+  // ===== CANVAS =====
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+  const canvasWrap = document.querySelector(".canvas-wrap");
+  const dpr = Math.min(window.devicePixelRatio||1,2);
+  function resizeCanvas(){ canvas.width=window.innerWidth*dpr; canvas.height=window.innerHeight*dpr; canvas.style.width=window.innerWidth+"px"; canvas.style.height=window.innerHeight+"px"; ctx.scale(dpr,dpr); }
+  resizeCanvas(); window.addEventListener("resize",resizeCanvas);
+
+  let globalProgress = 0;
+  function drawAmbient(p){
+    const w=window.innerWidth,h=window.innerHeight;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.fillStyle="#06061A"; ctx.fillRect(0,0,w,h);
+    const ox=w*(0.3+Math.sin(p*Math.PI*2)*0.2), oy=h*(0.35+Math.cos(p*Math.PI*1.5)*0.15), or=Math.min(w,h)*(0.3+p*0.15);
+    const g1=ctx.createRadialGradient(ox,oy,0,ox,oy,or);
+    g1.addColorStop(0,"rgba(124,58,237,0.08)"); g1.addColorStop(.5,"rgba(155,92,246,0.04)"); g1.addColorStop(1,"transparent");
+    ctx.fillStyle=g1; ctx.fillRect(0,0,w,h);
+    const o2x=w*(0.7-Math.sin(p*Math.PI*1.8)*0.15), o2y=h*(0.6+Math.cos(p*Math.PI*2.2)*0.1), o2r=Math.min(w,h)*0.25;
+    const g2=ctx.createRadialGradient(o2x,o2y,0,o2x,o2y,o2r);
+    g2.addColorStop(0,"rgba(196,181,253,0.05)"); g2.addColorStop(1,"transparent");
+    ctx.fillStyle=g2; ctx.fillRect(0,0,w,h);
+    const sy=h*(0.3+p*0.4), sg=ctx.createLinearGradient(0,sy,w,sy);
+    sg.addColorStop(0,"transparent"); sg.addColorStop(.3,"rgba(124,58,237,0.02)"); sg.addColorStop(.7,"rgba(124,58,237,0.02)"); sg.addColorStop(1,"transparent");
+    ctx.fillStyle=sg; ctx.fillRect(0,sy-100,w,200);
+    const vg=ctx.createRadialGradient(w/2,h/2,Math.min(w,h)*0.2,w/2,h/2,Math.max(w,h)*0.7);
+    vg.addColorStop(0,"transparent"); vg.addColorStop(1,"rgba(6,6,26,0.45)");
+    ctx.fillStyle=vg; ctx.fillRect(0,0,w,h);
+  }
+
+  // ===== LOADER =====
+  const loaderBar=document.getElementById("loader-bar"), loaderPct=document.getElementById("loader-percent"), loader=document.getElementById("loader");
+  let loadProg=0;
+  function simulateLoad(){
+    loadProg+=Math.random()*12+3; if(loadProg>100)loadProg=100;
+    loaderBar.style.width=loadProg+"%"; loaderPct.textContent=Math.round(loadProg)+"%";
+    if(loadProg<100){setTimeout(simulateLoad,80+Math.random()*120);}
+    else{setTimeout(()=>{loader.classList.add("hidden");animateHero();drawAmbient(0);},400);}
+  }
+  simulateLoad();
+
+  // ===== HERO =====
+  function animateHero(){
+    const tl=gsap.timeline();
+    tl.to(".hero-label",{opacity:1,duration:.8,ease:"power2.out"},0.2)
+      .to(".hero-heading .word",{opacity:1,y:0,stagger:.15,duration:1,ease:"power3.out"},0.4)
+      .to(".hero-tagline",{opacity:1,duration:.8,ease:"power2.out"},1.0)
+      .to(".hero-scroll-indicator",{opacity:1,duration:.8,ease:"power2.out"},1.3);
+  }
+
+  // ===== SCROLL CONTAINER =====
+  const scrollContainer=document.getElementById("scroll-container");
+  const heroSection=document.querySelector(".hero-standalone");
+
+  ScrollTrigger.create({
+    trigger:scrollContainer, start:"top top", end:"bottom bottom", scrub:true,
+    onUpdate: self=>{
+      const p=self.progress; globalProgress=p;
+      heroSection.style.opacity=Math.max(0,1-p*14);
+      const wp=Math.min(1,Math.max(0,(p-0.005)/0.07));
+      canvasWrap.style.clipPath=`circle(${wp*75}% at 50% 50%)`;
+      requestAnimationFrame(()=>drawAmbient(p));
+      document.querySelector(".c1").style.opacity=wp*0.6;
+      document.querySelector(".c1").style.transform=`translate(${Math.sin(p*3)*30}px,${Math.cos(p*2)*20}px)`;
+      document.querySelector(".c2").style.opacity=wp*0.5;
+      document.querySelector(".c2").style.transform=`translate(${Math.cos(p*2)*20}px,${Math.sin(p*3)*15}px)`;
+    }
+  });
+
+  // ===== SECTIONS =====
+  const sections=document.querySelectorAll(".scroll-section");
+  sections.forEach(s=>{
+    const enter=parseFloat(s.dataset.enter)/100, leave=parseFloat(s.dataset.leave)/100, mid=(enter+leave)/2;
+    s.style.top=(mid*scrollContainer.offsetHeight)+"px"; s.style.transform="translateY(-50%)";
+  });
+  const sectionStates=new Map();
+  function setupSectionAnimation(section){
+    const type=section.dataset.animation, persist=section.dataset.persist==="true";
+    const enter=parseFloat(section.dataset.enter)/100, leave=parseFloat(section.dataset.leave)/100, fadeRange=0.03;
+    const children=section.querySelectorAll(".section-label,.section-heading,.section-body,.section-note,.cta-button,.cta-sub,.stat,.treatment-item,.ba-container,.ba-heading");
+    const tl=gsap.timeline({paused:true});
+    switch(type){
+      case "fade-up": tl.from(children,{y:50,opacity:0,stagger:.12,duration:.9,ease:"power3.out"}); break;
+      case "slide-left": tl.from(children,{x:-80,opacity:0,stagger:.14,duration:.9,ease:"power3.out"}); break;
+      case "slide-right": tl.from(children,{x:80,opacity:0,stagger:.14,duration:.9,ease:"power3.out"}); break;
+      case "scale-up": tl.from(children,{scale:.85,opacity:0,stagger:.12,duration:1.0,ease:"power2.out"}); break;
+      case "stagger-up": tl.from(children,{y:60,opacity:0,stagger:.15,duration:.8,ease:"power3.out"}); break;
+      case "clip-reveal": tl.from(children,{clipPath:"inset(100% 0 0 0)",opacity:0,stagger:.15,duration:1.2,ease:"power4.inOut"}); break;
+    }
+    sectionStates.set(section,{tl,persist,enter,leave,fadeRange,active:false,persisted:false});
+  }
+  sections.forEach(setupSectionAnimation);
+  ScrollTrigger.create({
+    trigger:scrollContainer,start:"top top",end:"bottom bottom",scrub:true,
+    onUpdate:self=>{
+      const p=self.progress;
+      sectionStates.forEach((state,section)=>{
+        const{tl,persist,enter,leave,fadeRange}=state;
+        const shouldShow=p>=(enter-fadeRange)&&(persist?true:p<=(leave+fadeRange));
+        if(shouldShow&&!state.active){section.classList.add("active");section.style.opacity=1;section.style.visibility="visible";tl.play();state.active=true;}
+        else if(!shouldShow&&state.active&&!state.persisted){tl.reverse();setTimeout(()=>{if(!sectionStates.get(section).active)return;section.classList.remove("active");state.active=false;},900);state.active=false;}
+        if(persist&&state.active)state.persisted=true;
+        if(state.active||state.persisted){
+          let o=1;
+          if(p<enter)o=Math.max(0,(p-(enter-fadeRange))/fadeRange);
+          else if(!persist&&p>leave)o=Math.max(0,1-(p-leave)/fadeRange);
+          section.style.opacity=o;
+        }
+      });
+    }
+  });
+
+  // ===== BEFORE/AFTER (scroll reveal + drag) =====
+  const baAfter=document.getElementById("ba-after"), baLine=document.getElementById("ba-line"), baCont=document.getElementById("ba-container");
+  let baDragging=false, baScrollRevealed=false;
+  ScrollTrigger.create({
+    trigger:scrollContainer,start:"top top",end:"bottom bottom",scrub:true,
+    onUpdate:self=>{
+      const p=self.progress;
+      if(p>=0.28&&p<=0.40&&!baScrollRevealed){
+        const progress=(p-0.28)/(0.40-0.28);
+        baAfter.style.clipPath=`inset(0 ${(1-progress)*100}% 0 0)`;
+        baLine.style.left=(progress*100)+"%";
+      }
+      if(p>0.40&&!baScrollRevealed){baScrollRevealed=true;}
+    }
+  });
+  baCont.addEventListener("pointerdown",e=>{baDragging=true;baCont.setPointerCapture(e.pointerId);});
+  baCont.addEventListener("pointermove",e=>{
+    if(!baDragging)return;
+    const rect=baCont.getBoundingClientRect();
+    const pct=Math.max(0,Math.min(1,(e.clientX-rect.left)/rect.width));
+    baAfter.style.clipPath=`inset(0 ${(1-pct)*100}% 0 0)`;
+    baLine.style.left=(pct*100)+"%";
+  });
+  baCont.addEventListener("pointerup",()=>baDragging=false);
+
+  // ===== COUNTERS =====
+  const animated=new Set();
+  document.querySelectorAll(".stat-number").forEach(el=>{
+    const target=parseFloat(el.dataset.value), decimals=parseInt(el.dataset.decimals||"0");
+    ScrollTrigger.create({trigger:scrollContainer,start:"top top",end:"bottom bottom",
+      onUpdate:self=>{
+        const p=self.progress;
+        if(p>=0.58&&p<=0.72&&!animated.has(el)){
+          animated.add(el);
+          gsap.to({val:0},{val:target,duration:2.2,ease:"power1.out",onUpdate:function(){el.textContent=this.targets()[0].val.toFixed(decimals);}});
+        } else if(p<0.55&&animated.has(el)){animated.delete(el);el.textContent="0";}
+      }
+    });
+  });
+
+  // ===== DARK OVERLAY =====
+  (function(){
+    const overlay=document.getElementById("dark-overlay");
+    ScrollTrigger.create({trigger:scrollContainer,start:"top top",end:"bottom bottom",scrub:true,
+      onUpdate:self=>{
+        const p=self.progress,e=0.56,l=0.74,fr=0.04;
+        let o=0;
+        if(p>=e-fr&&p<=e)o=((p-(e-fr))/fr)*0.9;
+        else if(p>e&&p<l)o=0.9;
+        else if(p>=l&&p<=l+fr)o=0.9*(1-(p-l)/fr);
+        overlay.style.opacity=o;
+      }
+    });
+  })();
+
+  // ===== MARQUEE =====
+  document.querySelectorAll(".marquee-wrap").forEach(el=>{
+    const speed=parseFloat(el.dataset.scrollSpeed)||-25;
+    const enter=parseFloat(el.dataset.enter)/100, leave=parseFloat(el.dataset.leave)/100, fr=0.05;
+    gsap.to(el.querySelector(".marquee-text"),{xPercent:speed,ease:"none",scrollTrigger:{trigger:scrollContainer,start:"top top",end:"bottom bottom",scrub:true}});
+    ScrollTrigger.create({trigger:scrollContainer,start:"top top",end:"bottom bottom",scrub:true,
+      onUpdate:self=>{
+        const p=self.progress;
+        let o=0;
+        if(p>=enter&&p<=leave){const fi=Math.min(1,(p-enter)/fr),fo=Math.min(1,(leave-p)/fr);o=Math.min(fi,fo);}
+        el.style.opacity=o;
+      }
+    });
+  });
+
+  // ===== HEADER SCROLL =====
+  window.addEventListener("scroll",()=>{
+    document.getElementById("site-header").classList.toggle("scrolled",window.scrollY>80);
+  });
+
+  // ===== FLOAT BUTTON =====
+  window.addEventListener("scroll",()=>{
+    document.getElementById("float-boka").classList.toggle("visible",window.scrollY>200);
+  });
+
+  // ===== RESIZE =====
+  window.addEventListener("resize",()=>{
+    sections.forEach(s=>{
+      const e=parseFloat(s.dataset.enter)/100,l=parseFloat(s.dataset.leave)/100,m=(e+l)/2;
+      s.style.top=(m*scrollContainer.offsetHeight)+"px";
+    });
+    ScrollTrigger.refresh();
+  });
+
+})();
+
+// ===== MODAL =====
+function openModal(){
+  document.getElementById("boka-modal").classList.add("visible");
+  document.body.style.overflow="hidden";
+}
+function closeModal(){
+  document.getElementById("boka-modal").classList.remove("visible");
+  document.body.style.overflow="";
+}
+function submitForm(e){
+  e.preventDefault();
+  document.getElementById("modal-form-wrap").style.display="none";
+  document.getElementById("modal-success").classList.add("visible");
+}
+document.getElementById("boka-modal").addEventListener("click",function(e){
+  if(e.target===this)closeModal();
+});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
+
+// ===== MOBILE NAV =====
+function toggleMobileNav(){
+  const nav=document.getElementById("mobile-nav"), btn=document.getElementById("hamburger");
+  nav.classList.toggle("open"); btn.classList.toggle("open");
+  document.body.style.overflow=nav.classList.contains("open")?"hidden":"";
+}
+function closeMobileNav(){
+  document.getElementById("mobile-nav").classList.remove("open");
+  document.getElementById("hamburger").classList.remove("open");
+  document.body.style.overflow="";
+}
+</script>
+</body>
+</html>

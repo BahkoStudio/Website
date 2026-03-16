@@ -1,0 +1,16 @@
+{
+  "company_name": "Bahko Byrå",
+  "tagline": "Synlighet som säljer.",
+  "website": "bahkobyra.se",
+  "target_market": "Kliniker i Sverige",
+  "services": ["Hemsidor", "SEO", "Google Ads", "Social Media Ads"],
+  "primary_color": "#c9a96e",
+  "secondary_color": "#0c0a09",
+  "accent_color": "#e0c48a",
+  "text_color": "#f0ece4",
+  "font_heading": "Cormorant Garamond",
+  "font_body": "Outfit",
+  "logo_path": "brand/logo.png",
+  "founded": "2025",
+  "location": "Sverige"
+}
