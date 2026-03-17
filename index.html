@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bahko Byrå — Kontrollpanel</title>
+  <title>Bahko Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -304,7 +304,7 @@
         <span class="status-badge status-live">Live</span>
       </div>
       <div class="card-tag">Säljpresentation</div>
-      <div class="card-title">Pitch Deck</div>
+      <div class="card-title">Bahko Byrå Pitchdeck</div>
       <div class="card-desc">8 fullskärms-slides. Tangentbordsnavigering ← →. Problem, lösning, demo, priser, process, CTA.</div>
       <div class="card-cta">Öppna pitch <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
     </a>
@@ -316,7 +316,7 @@
       </div>
       <div class="card-tag">CRM Dashboard</div>
       <div class="card-title">Klinik CRM</div>
-      <div class="card-desc">87 svenska estetiska kliniker. 7 pipeline-steg, inline-anteckningar, CSV-export, localStorage-persistens.</div>
+      <div class="card-desc">87 svenska estetiska kliniker. ✉ Mejl-pipeline (7 steg) + 💼 LinkedIn-pipeline. Inline-anteckningar, CSV-export, DM-mallar.</div>
       <div class="card-cta">Öppna CRM <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
     </a>
 
@@ -329,6 +329,17 @@
       <div class="card-title">Konkurrensrapport</div>
       <div class="card-desc">7 sektioner + Google-resultat via SerpAPI. Landskap, prissättning, sociala medier och möjligheter.</div>
       <div class="card-cta">Öppna rapport <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+    </a>
+
+    <a href="https://maykaskitchen.se" target="_blank" class="card">
+      <div class="card-top">
+        <div class="card-icon">🍽️</div>
+        <span class="status-badge status-live">Live</span>
+      </div>
+      <div class="card-tag">Klienthemsida</div>
+      <div class="card-title">Maykas Hemsida</div>
+      <div class="card-desc">Mayka Gulos matblogg — assyrisk/syrisk mat. Tvåspråkig (SE/EN), 13 recept, scroll-animerad med GSAP + Lenis.</div>
+      <div class="card-cta">Öppna hemsida <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
     </a>
 
   </div>
@@ -359,6 +370,12 @@
       <div class="tool-name">remove_bg.js</div>
       <div class="tool-desc">Ta bort bakgrund från logotyp. Kräver REMOVE_BG_KEY + brand/logo_original.png.</div>
       <div class="tool-cmd">node tools/remove_bg.js</div>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-name">find_linkedin.js</div>
+      <div class="tool-desc">Hitta LinkedIn-profiler för beslutsfattare via SerpAPI. Sparar till .tmp/linkedin_data.json.</div>
+      <div class="tool-cmd">node tools/find_linkedin.js --dry-run</div>
     </div>
 
   </div>
