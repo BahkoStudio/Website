@@ -7,11 +7,11 @@ Skicka automatiserade mejlsekvenser till 87 svenska estetiska kliniker. Max 20 m
 
 ### .env
 ```
-RESEND_API_KEY=din-resend-nyckel   # resend.com → gratiskonto
-FROM_EMAIL=info@bahkobyra.se       # Verifiera domänen i Resend
+FROM_EMAIL=mathias@bahkobyra.se    # Avsändaradress
 FROM_NAME=Mathias Bahko
-DEMO_URL=https://bahkobyra.se/kliniker/elara-klinik-demo-v2.html
+SMTP_PASSWORD=ditt-lösenord        # one.com SMTP-lösenord
 MAX_PER_DAY=20                     # Valfritt, standard 20
+LOOM_URL=https://loom.com/share/xxxx  # Valfritt: Loom-video läggs in i Steg 1
 ```
 
 ### Setup Resend (en gång)

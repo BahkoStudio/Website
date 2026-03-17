@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bahko Byrå — CRM</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#06061A;--surface:#0B0B28;--surface2:#11113A;
+  --gold:#9B5CF6;--gold-lt:#C4B5FD;--gold-dim:rgba(139,92,246,.3);
+  --border:rgba(139,92,246,.12);--border-md:rgba(139,92,246,.28);
+  --text:#F0EDFF;--text-dim:rgba(240,237,255,.52);--text-faint:rgba(240,237,255,.25);
+  --serif:'Syne',system-ui,sans-serif;--sans:'Inter',system-ui,sans-serif;
+  --r:8px;
+  --s-none:rgba(240,237,255,.7);
+  --s-sent:#9B5CF6;
+  --s-follow:#F59E0B;
+  --s-replied:#38BDF8;
+  --s-demo:#34D399;
+  --s-won:#C4B5FD;
+  --s-lost:#F87171;
+}
+html{height:100%}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.5;height:100%;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+
+/* ===== HEADER ===== */
+.top-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:.9rem 1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;flex-shrink:0}
+.logo{font-family:var(--serif);font-size:1rem;font-weight:800;letter-spacing:.04em;color:var(--gold-lt);white-space:nowrap}
+.logo span{color:var(--text-faint);font-family:var(--sans);font-size:.68rem;letter-spacing:.1em;margin-left:.5rem;font-weight:400}
+.search-wrap{flex:1;min-width:180px;max-width:320px;position:relative}
+.search-wrap svg{position:absolute;left:.7rem;top:50%;transform:translateY(-50%);width:14px;height:14px;stroke:var(--text-faint);stroke-width:1.5;fill:none;pointer-events:none}
+#search{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:var(--sans);font-size:.82rem;padding:.5rem .7rem .5rem 2rem;outline:none;border-radius:var(--r);transition:border-color .3s}
+#search:focus{border-color:var(--gold-dim)}
+#search::placeholder{color:var(--text-faint)}
+.filters{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center}
+select.filter{background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);font-family:var(--sans);font-size:.78rem;padding:.45rem .7rem;outline:none;cursor:pointer;border-radius:var(--r);transition:border-color .3s;-webkit-appearance:none;padding-right:1.5rem;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(196,181,253,.3)'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:calc(100% - .5rem) center}
+select.filter:focus{border-color:var(--gold-dim)}
+.btn-export{background:rgba(124,58,237,.12);border:1px solid var(--border-md);color:var(--gold-lt);font-family:var(--sans);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;padding:.5rem 1rem;cursor:pointer;border-radius:var(--r);transition:all .3s;white-space:nowrap;font-weight:600}
+.btn-export:hover{background:rgba(124,58,237,.22)}
+.result-count{font-size:.72rem;color:var(--text-faint);white-space:nowrap;margin-left:auto}
+
+/* ===== STAT CARDS ===== */
+.stat-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:.8rem 1.5rem;display:flex;gap:.8rem;overflow-x:auto;flex-shrink:0}
+.stat-bar::-webkit-scrollbar{height:2px}
+.stat-bar::-webkit-scrollbar-track{background:transparent}
+.stat-bar::-webkit-scrollbar-thumb{background:var(--border-md)}
+.stat-card{flex-shrink:0;background:var(--surface2);border:1px solid var(--border);padding:.7rem 1rem;min-width:110px;cursor:pointer;border-radius:var(--r);transition:border-color .3s;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.stat-card[data-stage="ej_kontaktad"]::before{background:var(--s-none)}
+.stat-card[data-stage="mejl_skickat"]::before{background:var(--s-sent)}
+.stat-card[data-stage="uppfoljning"]::before{background:var(--s-follow)}
+.stat-card[data-stage="svarat"]::before{background:var(--s-replied)}
+.stat-card[data-stage="demo_bokad"]::before{background:var(--s-demo)}
+.stat-card[data-stage="kund"]::before{background:var(--s-won)}
+.stat-card[data-stage="forlorad"]::before{background:var(--s-lost)}
+.stat-card.active-filter{border-color:var(--gold-dim)}
+.stat-num{font-family:var(--serif);font-size:1.6rem;font-weight:800;line-height:1;color:var(--text)}
+.stat-label{font-size:.62rem;letter-spacing:.1em;color:var(--text-faint);text-transform:uppercase;margin-top:.2rem}
+
+/* ===== TABLE ===== */
+.table-wrap{flex:1;overflow:auto;padding:0}
+table{width:100%;border-collapse:collapse;min-width:800px}
+thead th{background:var(--surface);position:sticky;top:0;z-index:10;padding:.7rem 1rem;text-align:left;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-faint);font-weight:600;border-bottom:1px solid var(--border);cursor:pointer;white-space:nowrap;user-select:none}
+thead th:hover{color:var(--text-dim)}
+thead th.sorted{color:var(--gold-lt)}
+tbody tr{border-bottom:1px solid rgba(139,92,246,.06);transition:background .2s}
+tbody tr:hover{background:rgba(124,58,237,.04)}
+tbody td{padding:.7rem 1rem;vertical-align:top}
+.td-name{font-weight:500;color:var(--text);font-size:.88rem}
+.td-stad{font-size:.82rem;color:var(--text-dim)}
+.td-contact{display:flex;flex-direction:column;gap:.2rem}
+.td-contact a{font-size:.75rem;color:var(--text-faint);text-decoration:none;transition:color .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;display:block}
+.td-contact a:hover{color:var(--gold-lt)}
+.td-notes{font-size:.78rem;color:var(--text-dim);max-width:200px}
+.notes-display{cursor:text;min-height:1.2em;padding:.2rem 0}
+.notes-display:hover{color:var(--text)}
+.notes-edit{display:none;width:100%;background:var(--surface2);border:1px solid var(--gold-dim);color:var(--text);font-family:var(--sans);font-size:.78rem;padding:.3rem .5rem;resize:none;outline:none;border-radius:4px;min-height:60px}
+.td-notes.editing .notes-display{display:none}
+.td-notes.editing .notes-edit{display:block}
+.td-updated{font-size:.72rem;color:var(--text-faint)}
+
+/* ===== STATUS PILL ===== */
+.pill{display:inline-block;padding:.22rem .7rem;border-radius:100px;font-size:.68rem;letter-spacing:.06em;cursor:pointer;border:1px solid transparent;transition:opacity .2s;white-space:nowrap;user-select:none;font-weight:600}
+.pill:hover{opacity:.8}
+.pill[data-stage="ej_kontaktad"]{background:rgba(240,237,255,.07);color:var(--s-none);border-color:rgba(240,237,255,.15)}
+.pill[data-stage="mejl_skickat"]{background:rgba(155,92,246,.12);color:var(--s-sent);border-color:rgba(155,92,246,.28)}
+.pill[data-stage="uppfoljning"]{background:rgba(245,158,11,.1);color:var(--s-follow);border-color:rgba(245,158,11,.25)}
+.pill[data-stage="svarat"]{background:rgba(56,189,248,.1);color:var(--s-replied);border-color:rgba(56,189,248,.25)}
+.pill[data-stage="demo_bokad"]{background:rgba(52,211,153,.1);color:var(--s-demo);border-color:rgba(52,211,153,.25)}
+.pill[data-stage="kund"]{background:rgba(196,181,253,.12);color:var(--s-won);border-color:rgba(196,181,253,.3)}
+.pill[data-stage="forlorad"]{background:rgba(248,113,113,.1);color:var(--s-lost);border-color:rgba(248,113,113,.25)}
+
+/* ===== STAGE DROPDOWN ===== */
+.stage-dd{position:fixed;z-index:500;background:var(--surface2);border:1px solid var(--border-md);min-width:180px;border-radius:var(--r);box-shadow:0 8px 32px rgba(0,0,0,.6),0 0 0 1px rgba(139,92,246,.08)}
+.stage-dd-item{padding:.6rem 1rem;font-size:.8rem;cursor:pointer;display:flex;align-items:center;gap:.6rem;transition:background .2s}
+.stage-dd-item:hover{background:rgba(124,58,237,.1)}
+.stage-dd-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* ===== STEG CHIP ===== */
+.steg-chip{display:inline-block;padding:.2rem .6rem;border-radius:100px;font-size:.65rem;letter-spacing:.08em;cursor:pointer;background:rgba(139,92,246,.1);color:var(--gold-lt);border:1px solid rgba(139,92,246,.25);white-space:nowrap;transition:background .2s}
+.steg-chip:hover{background:rgba(139,92,246,.22)}
+.steg-chip.s0{background:transparent;color:var(--text-faint);border-color:transparent;cursor:default}
+
+/* ===== SVAR ===== */
+.svar-badge{display:inline-block;padding:.22rem .7rem;border-radius:100px;font-size:.68rem;cursor:pointer;border:1px solid;white-space:nowrap;transition:opacity .2s}
+.svar-badge:hover{opacity:.75}
+.svar-ja{background:rgba(52,211,153,.1);color:#34D399;border-color:rgba(52,211,153,.3)}
+.svar-intresse{background:rgba(56,189,248,.1);color:#38BDF8;border-color:rgba(56,189,248,.3)}
+.svar-add{background:transparent;color:var(--text-faint);border-color:rgba(240,237,255,.1);font-size:.62rem}
+
+/* ===== EMPTY ===== */
+.empty-row td{text-align:center;padding:4rem;color:var(--text-faint);font-size:.9rem}
+
+/* ===== GRAIN ===== */
+.grain{position:fixed;inset:0;z-index:999;pointer-events:none;opacity:.025;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:200px}
+
+/* ===== TAB NAV ===== */
+.tab-nav{display:flex;gap:.3rem;align-items:center;flex-shrink:0}
+.tab-btn{background:transparent;border:1px solid var(--border);color:var(--text-faint);font-family:var(--sans);font-size:.75rem;letter-spacing:.06em;padding:.4rem .9rem;cursor:pointer;border-radius:var(--r);transition:all .2s;font-weight:500}
+.tab-btn:hover{border-color:var(--border-md);color:var(--text-dim)}
+.tab-btn.active{background:rgba(139,92,246,.15);border-color:var(--border-md);color:var(--gold-lt)}
+
+/* ===== VIEWS ===== */
+.view{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
+.view.hidden{display:none}
+
+/* ===== LINKEDIN TABLE EXTRAS ===== */
+.li-url-link{font-size:.75rem;color:var(--gold-lt);text-decoration:none;display:inline-flex;align-items:center;gap:.3rem;transition:opacity .2s}
+.li-url-link:hover{opacity:.75}
+.li-not-found{font-size:.72rem;color:var(--text-faint);font-style:italic}
+.li-search-btn{background:transparent;border:1px solid var(--border);color:var(--text-faint);font-size:.65rem;padding:.2rem .5rem;cursor:pointer;border-radius:4px;transition:all .2s;white-space:nowrap}
+.li-search-btn:hover{border-color:var(--border-md);color:var(--text-dim)}
+</style>
+</head>
+<body>
+<div class="grain"></div>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <div class="logo">Bahko Byrå <span>CRM</span></div>
+  <div class="tab-nav">
+    <button class="tab-btn active" id="tab-email" onclick="switchTab('email')">✉ Mejl</button>
+    <button class="tab-btn" id="tab-linkedin" onclick="switchTab('linkedin')">💼 LinkedIn</button>
+  </div>
+  <div class="search-wrap">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="search" id="search" placeholder="Sök klinik, stad, e-post...">
+  </div>
+  <div class="filters">
+    <select class="filter" id="filter-stad"><option value="">Alla städer</option></select>
+    <select class="filter" id="filter-status"><option value="">Alla status</option>
+      <option value="ej_kontaktad">Ej kontaktad</option>
+      <option value="mejl_skickat">Mejl skickat</option>
+      <option value="uppfoljning">Uppföljning</option>
+      <option value="svarat">Svarat</option>
+      <option value="demo_bokad">Demo bokad</option>
+      <option value="kund">Kund</option>
+      <option value="forlorad">Förlorad</option>
+    </select>
+  </div>
+  <button class="btn-export" onclick="exportCSV()">↓ Export CSV</button>
+  <span class="result-count" id="result-count"></span>
+</div>
+
+<!-- EMAIL VIEW -->
+<div class="view" id="email-view">
+  <div class="stat-bar" id="stat-bar"></div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th data-sort="namn">Klinik</th>
+          <th data-sort="stad">Stad</th>
+          <th>Status</th>
+          <th>Steg</th>
+          <th>Svar</th>
+          <th>Kontakt</th>
+          <th>Anteckningar</th>
+          <th data-sort="senastUppdaterad">Uppdaterad</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- LINKEDIN VIEW -->
+<div class="view hidden" id="linkedin-view">
+  <div class="stat-bar" id="li-stat-bar"></div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th data-li-sort="namn">Klinik</th>
+          <th data-li-sort="stad">Stad</th>
+          <th>LinkedIn-profil</th>
+          <th>Status</th>
+          <th>DM</th>
+          <th>Anteckningar</th>
+          <th data-li-sort="li_uppdaterad">Uppdaterad</th>
+        </tr>
+      </thead>
+      <tbody id="li-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- STAGE DROPDOWN -->
+<div class="stage-dd" id="stage-dd" style="display:none"></div>
+
+<!-- EMAIL MODAL -->
+<div id="email-modal" style="display:none;position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.65);align-items:center;justify-content:center">
+  <div style="background:var(--surface2);border:1px solid var(--border-md);border-radius:10px;max-width:520px;width:92%;max-height:80vh;overflow-y:auto;padding:1.5rem;box-shadow:0 16px 48px rgba(0,0,0,.7)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem">
+      <strong id="modal-title" style="color:var(--gold-lt);font-family:var(--serif);font-size:1rem"></strong>
+      <button onclick="closeEmailModal()" style="background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:1.4rem;line-height:1;padding:0 .3rem">&times;</button>
+    </div>
+    <pre id="modal-body" style="white-space:pre-wrap;font-family:var(--sans);font-size:.82rem;color:var(--text-dim);line-height:1.75;margin:0"></pre>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════════════
+// LEADS DATA
+// ══════════════════════════════════════════════════════════════════════════════
+const LEADS = [
+  {id:1,namn:"Akademikliniken",stad:"Stockholm",adress:"Storängsvägen 10, 115 42 Stockholm",telefon:"08-614 54 00",email:"info@akademikliniken.se",webbplats:"akademikliniken.se",beskrivning:"Nordens ledande klinik för plastikkirurgi och estetiska behandlingar"},
+  {id:2,namn:"Nordiska Kliniken",stad:"Stockholm",adress:"Drottninggatan 33, 111 51 Stockholm",telefon:"08-50 90 20 00",email:"info@nordiskakliniken.se",webbplats:"nordiskakliniken.se",beskrivning:"Erbjuder plastikkirurgi, medicinsk hudvård och injektionsbehandlingar"},
+  {id:3,namn:"Art Clinic",stad:"Mölndal",adress:"Göteborgsvägen 95, 431 37 Mölndal",telefon:"010-499 86 00",email:"info@artclinic.se",webbplats:"artclinic.se",beskrivning:"Specialister inom plastikkirurgi, ryggkirurgi och ortopedi"},
+  {id:4,namn:"Stureplanskliniken",stad:"Stockholm",adress:"Lästmakargatan 10, 111 44 Stockholm",telefon:"08-10 31 40",email:"info@stureplanskliniken.se",webbplats:"stureplanskliniken.se",beskrivning:"Fokus på estetisk medicin, laser och avancerad hudvård"},
+  {id:5,namn:"Citadellkliniken",stad:"Landskrona",adress:"Strandvägen 101, 261 61 Landskrona",telefon:"0418-22 000",email:"info@citadellkliniken.se",webbplats:"citadellkliniken.se",beskrivning:"En av Sveriges största privatkliniker för estetisk plastikkirurgi"},
+  {id:6,namn:"Estetikcentrum",stad:"Malmö",adress:"Studentgatan 4, 211 38 Malmö",telefon:"040-656 66 60",email:"info@estetikcentrum.se",webbplats:"estetikcentrum.se",beskrivning:"Klinik i Malmö som erbjuder kirurgi, hårtransplantation och injektioner"},
+  {id:7,namn:"Proforma Clinic",stad:"Stockholm",adress:"Rosenlundsgatan 29A, 118 63 Stockholm",telefon:"08-33 33 55",email:"info@proformaclinic.se",webbplats:"proformaclinic.se",beskrivning:"Specialiserade på bröstkirurgi, ansiktskirurgi och kroppsskulptering"},
+  {id:8,namn:"Victoriakliniken",stad:"Saltsjöbaden",adress:"Vikingavägen 17F, 133 33 Saltsjöbaden",telefon:"08-533 300 00",email:"info@victoriakliniken.com",webbplats:"victoriakliniken.com",beskrivning:"Exklusiv klinik känd för bröstförstoringar och ansiktslyft"},
+  {id:9,namn:"Reformkliniken",stad:"Malmö",adress:"Stora Varvsgatan 11A, 211 19 Malmö",telefon:"010-151 15 00",email:"info@reformkliniken.se",webbplats:"reformkliniken.se",beskrivning:"Fokus på plastikkirurgi med patientens trygghet i centrum"},
+  {id:10,namn:"Laser & Estetik",stad:"Stockholm",adress:"Drottninggatan 65, 111 36 Stockholm",telefon:"08-411 50 05",email:"stockholm@laserestetik.se",webbplats:"laserestetik.se",beskrivning:"Erbjuder ett brett utbud av laserbehandlingar och kirurgi"},
+  {id:11,namn:"Göteborgs Plastikkirurgiska Center",stad:"Göteborg",adress:"Södra vägen 27, 411 35 Göteborg",telefon:"031-18 64 64",email:"info@gpc.se",webbplats:"gpc.se",beskrivning:"Lång erfarenhet av plastikkirurgi mitt i centrala Göteborg"},
+  {id:12,namn:"Eriksbergskliniken",stad:"Stockholm",adress:"Eriksbergsgatan 4, 114 30 Stockholm",telefon:"08-611 30 30",email:"info@eriksbergskliniken.se",webbplats:"eriksbergskliniken.se",beskrivning:"Medicinsk hudvård och estetiska injektioner på Östermalm"},
+  {id:13,namn:"MyBeauty Clinic",stad:"Stockholm",adress:"Strandvägen 7A, 114 56 Stockholm",telefon:"08-502 352 00",email:"info@mybeautyclinic.se",webbplats:"mybeautyclinic.se",beskrivning:"Modern klinik med fokus på injektioner och hudföryngring"},
+  {id:14,namn:"Improva Plastikkirurgi",stad:"Stockholm",adress:"Västmannagatan 66, 113 25 Stockholm",telefon:"08-31 06 06",email:"info@improva.se",webbplats:"improva.se",beskrivning:"Specialister på näsplastik och ansiktskirurgi"},
+  {id:15,namn:"Clinic Strömstad",stad:"Strömstad",adress:"Oslovägen 48, 452 35 Strömstad",telefon:"0526-149 00",email:"info@clinicstromstad.se",webbplats:"clinicstromstad.se",beskrivning:"Populär klinik för både svenska och norska patienter"},
+  {id:16,namn:"Uppsala Kliniken",stad:"Uppsala",adress:"Kålsängsgränd 10D, 753 19 Uppsala",telefon:"018-13 13 33",email:"info@uppsalakliniken.se",webbplats:"uppsalakliniken.se",beskrivning:"Erbjuder allt från plastikkirurgi till medicinsk laser"},
+  {id:17,namn:"Citylaser",stad:"Göteborg",adress:"Stora Nygatan 29, 411 08 Göteborg",telefon:"031-711 73 00",email:"info@citylaser.se",webbplats:"citylaser.se",beskrivning:"En av Sveriges äldsta laserkliniker med fokus på hudvård"},
+  {id:18,namn:"Lifetime Clinic",stad:"Stockholm",adress:"Kista Galleria, 164 91 Kista",telefon:"010-706 70 00",email:"info@lifetimeclinic.se",webbplats:"lifetimeclinic.se",beskrivning:"Kedja med fokus på kirurgi, injektioner och hårtransplantationer"},
+  {id:19,namn:"Lilas Kliniken",stad:"Solna",adress:"Råsundavägen 75, 169 57 Solna",telefon:"08-27 75 55",email:"info@lilaskliniken.se",webbplats:"lilaskliniken.se",beskrivning:"Inriktad på laser, hudvård och fettreducering"},
+  {id:20,namn:"Gerlee Plastikkirurgi",stad:"Helsingborg",adress:"Drottninggatan 35, 252 21 Helsingborg",telefon:"042-14 30 00",email:"info@gerlee.se",webbplats:"gerlee.se",beskrivning:"Etablerad klinik i Skåne med fokus på bröst och kropp"},
+  {id:21,namn:"Estetiska Institutet",stad:"Stockholm",adress:"Kungstensgatan 2, Stockholm",telefon:"08-18 40 60",email:"info@estetiskainstitutet.se",webbplats:"estetiskainstitutet.se",beskrivning:"Exklusiv klinik för plastikkirurgi och avancerad hudvård"},
+  {id:22,namn:"Bellakliniken",stad:"Helsingborg",adress:"Kungstorget 8, Helsingborg",telefon:"042-14 66 40",email:"info@bellakliniken.com",webbplats:"bellakliniken.com",beskrivning:"Känd för bröstförstoringar och moderna kroppsformande ingrepp"},
+  {id:23,namn:"The Faculty",stad:"Stockholm",adress:"Hangövägen 20, Stockholm",telefon:"08-98 90 00",email:"info@thefaculty.com",webbplats:"thefaculty.com",beskrivning:"Plastikkirurgisk klinik med fokus på rekonstruktiv och estetisk kirurgi"},
+  {id:24,namn:"Complete Skin",stad:"Stockholm",adress:"Kommendörsgatan 5, Stockholm",telefon:"08-29 88 44",email:"info@completeskin.se",webbplats:"completeskin.se",beskrivning:"Privat hudläkarmottagning specialiserad på dermatologi och estetik"},
+  {id:25,namn:"Caroviva",stad:"Uppsala",adress:"Uppsala Slott, Uppsala",telefon:"018-410 81 08",email:"info@caroviva.se",webbplats:"caroviva.se",beskrivning:"Högkvalitativ plastikkirurgi grundad av Dr. Andreas Lindahl"},
+  {id:26,namn:"Clinic Perfekta",stad:"Örebro",adress:"Stortorget 13, Örebro",telefon:"019-10 21 91",email:"info@clinicperfekta.se",webbplats:"clinicperfekta.se",beskrivning:"Etablerad klinik i Örebro med filialer i Karlstad och Västerås"},
+  {id:27,namn:"Strandkliniken",stad:"Stockholm",adress:"Strandvägen 7A, Stockholm",telefon:"08-21 91 91",email:"info@strandkliniken.se",webbplats:"strandkliniken.se",beskrivning:"Erbjuder ett brett utbud av plastikkirurgi i centrala Stockholm"},
+  {id:28,namn:"Clinic Divine",stad:"Stockholm",adress:"Kommendörsgatan 14, Stockholm",telefon:"08-121 380 01",email:"info@clinicdivine.se",webbplats:"clinicdivine.se",beskrivning:"Specialister på injektionsbehandlingar och medicinsk hudvård"},
+  {id:29,namn:"Renaissance Clinique",stad:"Stockholm",adress:"Folkungagatan 122, Stockholm",telefon:"08-66 70 800",email:"info@renaissanceclinique.com",webbplats:"renaissanceclinique.com",beskrivning:"Plastikkirurgi och estetiska behandlingar med naturliga resultat"},
+  {id:30,namn:"Derma Clinic",stad:"Stockholm",adress:"Grev Turegatan 20, Stockholm",telefon:"08-44 99 490",email:"info@dermaclinicstockholm.se",webbplats:"dermaclinicstockholm.se",beskrivning:"Klinik med fokus på hudförbättring och anti-ageing"},
+  {id:31,namn:"Skövdekliniken",stad:"Skövde",adress:"Hertig Johans torg 2, Skövde",telefon:"0500-40 99 88",email:"info@skovdekliniken.se",webbplats:"skovdekliniken.se",beskrivning:"Storstadskliniken i den lilla staden – bred estetisk meny"},
+  {id:32,namn:"Inskinity",stad:"Stockholm",adress:"Nybrogatan 7, Stockholm",telefon:"08-425 054 40",email:"info@inskinity.se",webbplats:"inskinity.se",beskrivning:"High-end klinik för avancerad hudvård och estetiska behandlingar"},
+  {id:33,namn:"Veritaskliniken",stad:"Stockholm",adress:"Sturegatan 32, Stockholm",telefon:"08-500 636 36",email:"info@veritaskliniken.se",webbplats:"veritaskliniken.se",beskrivning:"Personlig klinik inriktad på medicinsk estetik och hudvård"},
+  {id:34,namn:"Skin Agency",stad:"Stockholm",adress:"Riddargatan 20, Stockholm",telefon:"08-33 10 36",email:"info@skinagency.se",webbplats:"skinagency.se",beskrivning:"Populär klinik för hudbehandlingar och glow-behandlingar"},
+  {id:35,namn:"Doctor_K",stad:"Stockholm",adress:"Regeringsgatan 85, Stockholm",telefon:"08-88 92 41",email:"info@doctork.se",webbplats:"doctork.se",beskrivning:"Känd klinik med fokus på injektioner och skräddarsydda behandlingar"},
+  {id:36,namn:"ShapeBy",stad:"Stockholm",adress:"Sturegatan 31, Stockholm",telefon:"08-20 92 55",email:"info@shapeby.com",webbplats:"shapeby.com",beskrivning:"Specialister på contouring och läppförstoringar"},
+  {id:37,namn:"Plastikakademin",stad:"Linköping",adress:"Brigadgatan 4, Linköping",telefon:"013-29 77 00",email:"hello@plastikakademin.se",webbplats:"plastikakademin.se",beskrivning:"Ledande plastikkirurgisk klinik i Östergötland"},
+  {id:38,namn:"Estetikspecialisten",stad:"Malmö",adress:"Kärleksgatan 5A, Malmö",telefon:"040-23 66 66",email:"info@estetikspecialisten.se",webbplats:"estetikspecialisten.se",beskrivning:"Klinik i centrala Malmö med fokus på estetiska injektioner"},
+  {id:39,namn:"Lidingökliniken",stad:"Lidingö",adress:"Stockholmsvägen 33, Lidingö",telefon:"08-400 149 30",email:"info@lidingokliniken.se",webbplats:"lidingokliniken.se",beskrivning:"Erfaren klinik för plastikkirurgi, ansiktslyft och ögonlock"},
+  {id:40,namn:"Växjö Medical Center (Dr Tore)",stad:"Växjö",adress:"Liedbergsgatan 41, Växjö",telefon:"0470-57 10 40",email:"info@drtore.com",webbplats:"drtore.com",beskrivning:"Erbjuder plastikkirurgi och medicinska laserbehandlingar"},
+  {id:41,namn:"Elite Clinic",stad:"Göteborg",adress:"Verkstadsgatan 2, 417 57 Göteborg",telefon:"031-15 00 50",email:"info@eliteclinic.se",webbplats:"eliteclinic.se",beskrivning:"Modern klinik i Göteborg med plastikkirurgi av högsta klass"},
+  {id:42,namn:"Conturkliniken",stad:"Stockholm",adress:"Kommendörsgatan 10, 114 48 Stockholm",telefon:"08-411 30 15",email:"info@conturkliniken.se",webbplats:"conturkliniken.se",beskrivning:"Specialister på ansiktskirurgi och kroppsskulptering"},
+  {id:43,namn:"Klinik 34",stad:"Göteborg",adress:"Kungsgatan 34, 411 19 Göteborg",telefon:"031-774 02 92",email:"info@klinik34.se",webbplats:"klinik34.se",beskrivning:"Kända för bröstförstoring utan narkos och avancerad fettsugning"},
+  {id:44,namn:"Vanity Clinics",stad:"Solna",adress:"Råsundavägen 166, 169 36 Solna",telefon:"08-755 55 00",email:"info@vanityclinics.se",webbplats:"vanityclinics.se",beskrivning:"Populär klinik för fillers, botox och medicinsk hudvård"},
+  {id:45,namn:"Mälarplastik",stad:"Västerås",adress:"Flottiljgatan 69, 721 31 Västerås",telefon:"021-12 12 00",email:"info@malarplastik.se",webbplats:"malarplastik.se",beskrivning:"En av Sveriges äldsta privatkliniker för plastikkirurgi"},
+  {id:46,namn:"Nackakliniken",stad:"Nacka",adress:"Lasarettsvägen 4, 131 45 Nacka",telefon:"08-718 33 00",email:"info@nackakliniken.se",webbplats:"nackakliniken.se",beskrivning:"Specialister på plastikkirurgi, bröst och näsplastik"},
+  {id:47,namn:"Novokliniken",stad:"Kalmar",adress:"Norra Långgatan 32, 392 32 Kalmar",telefon:"0480-140 40",email:"info@novokliniken.se",webbplats:"novokliniken.se",beskrivning:"Erbjuder kirurgi och behandlingar i Kalmar och Växjö"},
+  {id:48,namn:"Löfvingkliniken",stad:"Göteborg",adress:"Engelbrektsgatan 24, 411 37 Göteborg",telefon:"031-711 62 02",email:"info@lofvingkliniken.se",webbplats:"lofvingkliniken.se",beskrivning:"Boutique-klinik i Göteborg med personlig plastikkirurgi"},
+  {id:49,namn:"Dr. Ros",stad:"Växjö",adress:"Kungsgatan 13B, 352 31 Växjö",telefon:"0470-33 99 77",email:"info@drros.se",webbplats:"drros.se",beskrivning:"Väletablerad klinik i Växjö för kirurgi och injektioner"},
+  {id:50,namn:"Hermelinen Estetik",stad:"Luleå",adress:"Sandviksgatan 60, 972 32 Luleå",telefon:"0920-40 22 00",email:"info@hermelinen.se",webbplats:"hermelinen.se",beskrivning:"Norrlands ledande privatvårdgivare med estetisk avdelning"},
+  {id:51,namn:"Aleris Plastikkirurgi",stad:"Stockholm",adress:"Sabbatsbergsvägen 22, 113 21 Stockholm",telefon:"08-690 63 80",email:"plastikkirurgi@aleris.se",webbplats:"aleris.se",beskrivning:"En av Sveriges största vårdgivare med specialistkliniker"},
+  {id:52,namn:"Diamond Plastikkirurgi",stad:"Örebro",adress:"Järnvägsgatan 10, 703 62 Örebro",telefon:"019-25 08 00",email:"info@diamondplastikkirurgi.se",webbplats:"diamondplastikkirurgi.se",beskrivning:"Ledande plastikkirurgisk klinik i Örebro"},
+  {id:53,namn:"Nordic Hair Clinic",stad:"Stockholm",adress:"Tegnérgatan 12, 113 58 Stockholm",telefon:"08-650 15 51",email:"info@nordichair.com",webbplats:"nordichair.com",beskrivning:"Marknadsledande inom hårtransplantationer och PRP"},
+  {id:54,namn:"FaceClinic",stad:"Stockholm",adress:"Engelbrektsgatan 35, 114 32 Stockholm",telefon:"08-611 00 12",email:"info@faceclinic.se",webbplats:"faceclinic.se",beskrivning:"Specialister på ansiktskirurgi, injektioner och medicinsk hudvård"},
+  {id:55,namn:"Narva Kirurg Center",stad:"Stockholm",adress:"Narvavägen 24, 115 22 Stockholm",telefon:"08-666 20 30",email:"info@narvakirurg.se",webbplats:"narvakirurg.se",beskrivning:"Fokus på funktionell och estetisk näskirurgi samt ansiktslyft"},
+  {id:56,namn:"Hudcompagniet",stad:"Malmö",adress:"Regementsgatan 14, 211 42 Malmö",telefon:"040-91 50 60",email:"info@hudcompagniet.se",webbplats:"hudcompagniet.se",beskrivning:"Malmöklinik inriktad på laser, hudslipning och estetisk dermatologi"},
+  {id:57,namn:"Zelbing Plastikkirurgi",stad:"Halmstad",adress:"Brogatan 2, 302 42 Halmstad",telefon:"035-10 60 70",email:"info@zelbing.se",webbplats:"zelbing.se",beskrivning:"Privat plastikkirurgi med lång erfarenhet i Halmstad"},
+  {id:58,namn:"Estetikum",stad:"Uppsala",adress:"Kungsängsgatan 21, 753 22 Uppsala",telefon:"018-444 40 40",email:"info@estetikum.se",webbplats:"estetikum.se",beskrivning:"Modern klinik i Uppsala med brett utbud av kirurgi och injektioner"},
+  {id:59,namn:"ByWe",stad:"Stockholm",adress:"Kommendörsgatan 37, 114 58 Stockholm",telefon:"08-661 61 60",email:"info@bywe.se",webbplats:"bywe.se",beskrivning:"Exklusiv salong och klinik på Östermalm"},
+  {id:60,namn:"Rättviks Laserklinik",stad:"Rättvik",adress:"Vasagatan 6, 795 30 Rättvik",telefon:"0248-100 45",email:"info@rattvikslaserklinik.se",webbplats:"rattvikslaserklinik.se",beskrivning:"Framstående laserklinik i Dalarna"},
+  {id:61,namn:"Aesthetica",stad:"Stockholm",adress:"Grev Turegatan 35, Stockholm",telefon:"08-660 00 60",email:"info@aesthetica.se",webbplats:"aesthetica.se",beskrivning:"Avancerad plastikkirurgi med fokus på naturliga resultat"},
+  {id:62,namn:"Plastikkirurgen Stockholm",stad:"Stockholm",adress:"Fredriksdalsgatan 14, Stockholm",telefon:"08-400 200 22",email:"kontakt@plastikkirurgenstockholm.se",webbplats:"plastikkirurgenstockholm.se",beskrivning:"Specialiserade på bröstkirurgi, fettsugning och intimkirurgi"},
+  {id:63,namn:"LH Kliniken",stad:"Göteborg",adress:"Redegatan 1B, Göteborg",telefon:"031-123 456",email:"info@lhkliniken.se",webbplats:"lhkliniken.se",beskrivning:"Erbjuder fillers, botox, hudföryngring och laserbehandlingar"},
+  {id:64,namn:"Vanish Laser & Hudklinik",stad:"Malmö",adress:"Södra Förstadsgatan 66, Malmö",telefon:"040-123 456",email:"info@vanish.se",webbplats:"vanish.se",beskrivning:"Laserbehandlingar, hårborttagning och hudföryngring"},
+  {id:65,namn:"Karlstads Kirurgiska Laserklinik",stad:"Karlstad",adress:"Västra Torggatan 18, Karlstad",telefon:"054-123 456",email:"kontakt@kirurgisklaserklinik.se",webbplats:"kirurgisklaserklinik.se",beskrivning:"Lokal aktör inom estetisk kirurgi och laser"},
+  {id:66,namn:"Stockholmskliniken",stad:"Stockholm",adress:"Östermalmstorg 2, Stockholm",telefon:"08-123 456 78",email:"info@stockholmskliniken.se",webbplats:"stockholmskliniken.se",beskrivning:"Kirurgi, injektioner och hudvård i lyxig miljö"},
+  {id:67,namn:"Ellies Hudvårdssalong",stad:"Stockholm",adress:"Odengatan 21, Stockholm",telefon:"08-612 34 56",email:"info@ellieshudvard.se",webbplats:"ellieshudvard.se",beskrivning:"Hudvård, microneedling och avancerad ansiktsbehandling"},
+  {id:68,namn:"Estetik & Hälsa i Norr",stad:"Umeå",adress:"Storgatan 45, Umeå",telefon:"090-123 456",email:"kontakt@estetikochnorr.se",webbplats:"estetikochnorr.se",beskrivning:"Norrlandsbaserad klinik med starkt fokus på injektioner"},
+  {id:69,namn:"Clinica Nova",stad:"Göteborg",adress:"Södra Vägen 12, Göteborg",telefon:"031-456 789",email:"info@clinicanova.se",webbplats:"clinicanova.se",beskrivning:"Kirurgi, PRP, trådlyft och kroppsskulptering"},
+  {id:70,namn:"Estetik Halmstad",stad:"Halmstad",adress:"Brogatan 52, Halmstad",telefon:"035-123 456",email:"info@estetikhalmstad.se",webbplats:"estetikhalmstad.se",beskrivning:"Lokalt växande klinik med brett utbud av estetiska behandlingar"},
+  {id:71,namn:"Clinique Delux",stad:"Stockholm",adress:"Drottninggatan 71C, Stockholm",telefon:"08-123 789 00",email:"kontakt@cliniquedelux.se",webbplats:"cliniquedelux.se",beskrivning:"Premiumklinik med fokus på exklusiva injektionsbehandlingar"},
+  {id:72,namn:"Estetik i Fokus",stad:"Göteborg",adress:"Östra Hamngatan 16, Göteborg",telefon:"031-123 789",email:"info@estetikifokus.se",webbplats:"estetikifokus.se",beskrivning:"Kirurgi, laser och injektioner"},
+  {id:73,namn:"Derma Aesthetics",stad:"Malmö",adress:"Södra Förstadsgatan 101, Malmö",telefon:"040-456 789",email:"info@dermaaesthetics.se",webbplats:"dermaaesthetics.se",beskrivning:"Känd för avancerad hudvård och anti-aging"},
+  {id:74,namn:"Clinica Estetica",stad:"Örebro",adress:"Kungsgatan 12, Örebro",telefon:"019-123 456",email:"kontakt@clinicaestetica.se",webbplats:"clinicaestetica.se",beskrivning:"Växande aktör i Mellansverige med fokus på injektioner"},
+  {id:75,namn:"Estetik i Norrköping",stad:"Norrköping",adress:"Drottninggatan 50, Norrköping",telefon:"011-123 456",email:"info@estetiknorrkoping.se",webbplats:"estetiknorrkoping.se",beskrivning:"Lokalt förankrad klinik med hög kundnöjdhet"},
+  {id:76,namn:"SkinCare Uppsala",stad:"Uppsala",adress:"Vaksalagatan 12, Uppsala",telefon:"018-123 456",email:"kontakt@skincareuppsala.se",webbplats:"skincareuppsala.se",beskrivning:"Fillers, botox och hudföryngring"},
+  {id:77,namn:"Estetik i Borås",stad:"Borås",adress:"Allégatan 20, Borås",telefon:"033-123 456",email:"info@estetikboras.se",webbplats:"estetikboras.se",beskrivning:"Hudvård och injektioner med starkt lokalt rykte"},
+  {id:78,namn:"Clinique Bellezza",stad:"Västerås",adress:"Vasagatan 10, Västerås",telefon:"021-123 456",email:"kontakt@cliniquebellezza.se",webbplats:"cliniquebellezza.se",beskrivning:"Premiumklinik med fokus på naturliga resultat"},
+  {id:79,namn:"Estetik i Sundsvall",stad:"Sundsvall",adress:"Storgatan 22, Sundsvall",telefon:"060-123 456",email:"info@estetiksundsvall.se",webbplats:"estetiksundsvall.se",beskrivning:"Kirurgi, laser och injektioner"},
+  {id:80,namn:"Glow Clinic",stad:"Stockholm",adress:"Linnégatan 5, Stockholm",telefon:"08-123 456 90",email:"info@glowclinic.se",webbplats:"glowclinic.se",beskrivning:"Trendig klinik med yngre målgrupp och starkt Instagram-närvaro"},
+  {id:81,namn:"Sveaplastik",stad:"Stockholm",adress:"Sveavägen 45, Stockholm",telefon:"08-612 00 00",email:"info@sveaplastik.se",webbplats:"sveaplastik.se",beskrivning:"Plastikkirurgi och estetiska behandlingar i centrala Stockholm"},
+  {id:82,namn:"Skånekliniken",stad:"Malmö",adress:"Södra Förstadsgatan 33, Malmö",telefon:"040-98 76 54",email:"info@skanekliniken.se",webbplats:"skanekliniken.se",beskrivning:"Regional klinik med brett utbud av estetiska behandlingar"},
+  {id:83,namn:"Medi Spa Stockholm",stad:"Stockholm",adress:"Humlegårdsgatan 15, Stockholm",telefon:"08-545 12 34",email:"info@medispa.se",webbplats:"medispa.se",beskrivning:"Medicinsk spa med fokus på hud och kropp"},
+  {id:84,namn:"Norrlands Estetik",stad:"Umeå",adress:"Kungsgatan 23, Umeå",telefon:"090-45 67 89",email:"info@norrlandsestetik.se",webbplats:"norrlandsestetik.se",beskrivning:"Ledande estetisk klinik i norra Sverige"},
+  {id:85,namn:"Kungsholmskliniken",stad:"Stockholm",adress:"Kungsholmstorg 4, Stockholm",telefon:"08-654 32 10",email:"info@kungsholmskliniken.se",webbplats:"kungsholmskliniken.se",beskrivning:"Estetisk medicin och hudvård på Kungsholmen"},
+  {id:86,namn:"Södermalm Estetik",stad:"Stockholm",adress:"Hornsgatan 82, Stockholm",telefon:"08-743 00 11",email:"info@sodermalmestetik.se",webbplats:"sodermalmestetik.se",beskrivning:"Injektioner och laserbehandlingar på Södermalm"},
+  {id:87,namn:"Väst Estetik",stad:"Göteborg",adress:"Avenyn 12, Göteborg",telefon:"031-88 77 66",email:"info@vastestetik.se",webbplats:"vastestetik.se",beskrivning:"Modern estetisk klinik på Göteborgs pulsåder"},
+];
+
+// ══════════════════════════════════════════════════════════════════════════════
+// STAGE CONFIG
+// ══════════════════════════════════════════════════════════════════════════════
+const STAGES = [
+  {key:"ej_kontaktad",label:"Ej kontaktad",color:"var(--s-none)"},
+  {key:"mejl_skickat",label:"Mejl skickat",color:"var(--s-sent)"},
+  {key:"uppfoljning",label:"Uppföljning",color:"var(--s-follow)"},
+  {key:"svarat",label:"Svarat",color:"var(--s-replied)"},
+  {key:"demo_bokad",label:"Demo bokad",color:"var(--s-demo)"},
+  {key:"kund",label:"Kund",color:"var(--s-won)"},
+  {key:"forlorad",label:"Förlorad",color:"var(--s-lost)"},
+];
+const STAGE_MAP = Object.fromEntries(STAGES.map(s=>[s.key,s]));
+const STAGE_COLOR_MAP = {"ej_kontaktad":"--s-none","mejl_skickat":"--s-sent","uppfoljning":"--s-follow","svarat":"--s-replied","demo_bokad":"--s-demo","kund":"--s-won","forlorad":"--s-lost"};
+
+// ══════════════════════════════════════════════════════════════════════════════
+// EMAIL TEMPLATES (mirror of outreach_manager.js)
+// ══════════════════════════════════════════════════════════════════════════════
+const TEMPLATES = {
+  1: (namn) => ({
+    subject: `Har ${namn} tänkt på detta?`,
+    body: `Hej!\n\nJag heter Mathias och jobbar med hemsidor for kliniker.\n\nJag kikade in pa er sida och tog fram ett gratis demo. Det visar hur ${namn} kan se ut med en nyare design och en tydlig bokningsknapp.\n\nVi hjalpta nyligen en klinik som hade en liknande sida. Efter bytet fick de 36% fler bokningar och hamnade pa forsta sidan pa Google inom 30 dagar.\n\nTa en titt pa demot: bahkobyra.cloud\n\nDet tar under 2 minuter. Inga krav.\n\nHor garna av er!\n\nMathias Bahko\nBahko Byra`
+  }),
+  2: (namn) => ({
+    subject: `Sag ni mitt forslag, ${namn}?`,
+    body: `Hej igen!\n\nSag ni demot jag skickade om ${namn}?\n\nLanken: bahkobyra.cloud\n\nVi jobbar just nu med ett par kliniker i Sverige och det finns fortfarande plats. Vill inte att ni missar det.\n\nMathias Bahko\nBahko Byra`
+  }),
+  3: (namn) => ({
+    subject: `Kliniker som bytte hemsida`,
+    body: `Hej!\n\nKliniker som byter till en modern hemsida far oftast fler bokningar och syns battre pa Google.\n\nVi har gjort ett demo redo for ${namn}: bahkobyra.cloud\n\nOm ni svarar idag bjuder vi pa ett gratis 15-minutersmote.\n\nMathias Bahko\nBahko Byra`
+  }),
+  4: (namn) => ({
+    subject: `Sista mejlet fran mig, ${namn}`,
+    body: `Hej!\n\nDetta ar mitt sista mejl, lovar.\n\nOm ni nagon gang funderar pa att byta hemsida kan ni alltid hora av er. Svara bara "ja" sa bokar vi ett gratis 15-minutersmote.\n\nDemot finns kvar: bahkobyra.cloud\n\nLycka till med kliniken!\n\nMathias Bahko\nBahko Byra`
+  })
+};
+
+// ══════════════════════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════════════════════
+function loadState(){
+  try{return JSON.parse(localStorage.getItem("crm_state")||"{}");}
+  catch{return {};}
+}
+function saveState(){
+  const s={};
+  LEADS.forEach(l=>s[l.id]={status:l.status,anteckningar:l.anteckningar,senastUppdaterad:l.senastUppdaterad,svar:l.svar||""});
+  localStorage.setItem("crm_state",JSON.stringify(s));
+}
+function mergeState(){
+  const s=loadState();
+  LEADS.forEach(l=>{
+    const sv=s[l.id];
+    l.status=sv?.status||"ej_kontaktad";
+    l.anteckningar=sv?.anteckningar||"";
+    l.senastUppdaterad=sv?.senastUppdaterad||null;
+    l.svar=sv?.svar||"";
+    l.outreachStep=0;
+  });
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FILTER & SORT STATE
+// ══════════════════════════════════════════════════════════════════════════════
+let filterSearch="", filterStad="", filterStatus="", activeStageFilter="", sortKey="namn", sortDir=1;
+
+function norm(s){return(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();}
+
+function getFiltered(){
+  return LEADS.filter(l=>{
+    if(filterSearch){const q=norm(filterSearch);if(!norm(l.namn).includes(q)&&!norm(l.stad).includes(q)&&!norm(l.email).includes(q)&&!norm(l.webbplats).includes(q))return false;}
+    if(filterStad&&l.stad!==filterStad)return false;
+    if(filterStatus&&l.status!==filterStatus)return false;
+    if(activeStageFilter&&l.status!==activeStageFilter)return false;
+    return true;
+  }).sort((a,b)=>{
+    let av=a[sortKey]||"", bv=b[sortKey]||"";
+    if(typeof av==="string")av=av.toLowerCase();
+    if(typeof bv==="string")bv=bv.toLowerCase();
+    return av<bv?-sortDir:av>bv?sortDir:0;
+  });
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════════════════════════════════════
+function renderStats(){
+  const bar=document.getElementById("stat-bar");
+  const counts=Object.fromEntries(STAGES.map(s=>[s.key,0]));
+  LEADS.forEach(l=>counts[l.status]=(counts[l.status]||0)+1);
+  bar.innerHTML=STAGES.map(s=>`
+    <div class="stat-card${activeStageFilter===s.key?" active-filter":""}" data-stage="${s.key}" onclick="toggleStageFilter('${s.key}')">
+      <div class="stat-num">${counts[s.key]||0}</div>
+      <div class="stat-label">${s.label}</div>
+    </div>`).join("");
+}
+
+function renderTable(){
+  const rows=getFiltered();
+  const tbody=document.getElementById("tbody");
+  document.getElementById("result-count").textContent=`${rows.length} av ${LEADS.length}`;
+  if(!rows.length){tbody.innerHTML=`<tr class="empty-row"><td colspan="8">Inga leads matchar filtret</td></tr>`;return;}
+  tbody.innerHTML=rows.map(l=>{
+    const upd=l.senastUppdaterad?new Date(l.senastUppdaterad).toLocaleDateString("sv-SE",{day:"numeric",month:"short"}):"—";
+    const step=l.outreachStep||0;
+    const stepHtml=step>0
+      ?`<span class="steg-chip" onclick="showEmailModal(${step},'${l.namn.replace(/'/g,"\\'")}')">Steg ${step}</span>`
+      :`<span class="steg-chip s0">—</span>`;
+    const svarHtml=l.svar==="ja"
+      ?`<span class="svar-badge svar-ja" onclick="setSvar(${l.id},'')">✓ Svarat</span>`
+      :l.svar==="intresse"
+      ?`<span class="svar-badge svar-intresse" onclick="setSvar(${l.id},'ja')">Intresse</span>`
+      :`<span class="svar-badge svar-add" onclick="setSvar(${l.id},'intresse')">+ Lägg till</span>`;
+    return `<tr>
+      <td><div class="td-name">${l.namn}</div><div style="font-size:.72rem;color:var(--text-faint);margin-top:.1rem">${l.webbplats}</div></td>
+      <td class="td-stad">${l.stad}</td>
+      <td><span class="pill" data-stage="${l.status}" data-id="${l.id}" onclick="openStageDD(event,${l.id})">${STAGE_MAP[l.status]?.label||l.status}</span></td>
+      <td>${stepHtml}</td>
+      <td>${svarHtml}</td>
+      <td class="td-contact">
+        ${l.telefon?`<a href="tel:${l.telefon}">📞 ${l.telefon}</a>`:""}
+        ${l.email?`<a href="mailto:${l.email}" title="${l.email}">✉ ${l.email}</a>`:""}
+      </td>
+      <td class="td-notes" id="notes-${l.id}" onclick="editNotes(${l.id})">
+        <div class="notes-display">${l.anteckningar||'<span style="color:var(--text-faint);font-style:italic">Klicka för att lägga till...</span>'}</div>
+        <textarea class="notes-edit" onblur="saveNotes(${l.id},this.value)" onkeydown="if(event.key==='Escape'){cancelNotes(${l.id})}" rows="3">${l.anteckningar||""}</textarea>
+      </td>
+      <td class="td-updated">${upd}</td>
+    </tr>`;
+  }).join("");
+}
+
+function render(){renderStats();renderTable();}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// STAGE DROPDOWN
+// ══════════════════════════════════════════════════════════════════════════════
+let ddTargetId=null;
+function openStageDD(e,id){
+  e.stopPropagation();
+  ddTargetId=id;
+  const dd=document.getElementById("stage-dd");
+  dd.innerHTML=STAGES.map(s=>`
+    <div class="stage-dd-item" onclick="setStage(${id},'${s.key}')">
+      <div class="stage-dd-dot" style="background:${s.color}"></div>${s.label}
+    </div>`).join("");
+  const r=e.target.getBoundingClientRect();
+  dd.style.display="block";
+  const ddH=dd.offsetHeight;
+  let top=r.bottom+6, left=r.left;
+  if(top+ddH>window.innerHeight)top=r.top-ddH-6;
+  if(left+200>window.innerWidth)left=window.innerWidth-210;
+  dd.style.top=top+"px"; dd.style.left=left+"px";
+}
+function setStage(id,stage){
+  const l=LEADS.find(x=>x.id===id);
+  if(l){l.status=stage;l.senastUppdaterad=new Date().toISOString();saveState();}
+  document.getElementById("stage-dd").style.display="none";
+  render();
+}
+document.addEventListener("click",e=>{
+  if(!e.target.closest("#stage-dd")&&!e.target.closest(".pill"))
+    document.getElementById("stage-dd").style.display="none";
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// NOTES
+// ══════════════════════════════════════════════════════════════════════════════
+function editNotes(id){
+  const cell=document.getElementById("notes-"+id);
+  cell.classList.add("editing");
+  const ta=cell.querySelector(".notes-edit");
+  ta.focus(); ta.selectionStart=ta.value.length;
+}
+function saveNotes(id,val){
+  const l=LEADS.find(x=>x.id===id);
+  if(l){l.anteckningar=val.trim();l.senastUppdaterad=new Date().toISOString();saveState();}
+  const cell=document.getElementById("notes-"+id);
+  cell.classList.remove("editing");
+  const disp=cell.querySelector(".notes-display");
+  disp.innerHTML=val.trim()||'<span style="color:var(--text-faint);font-style:italic">Klicka för att lägga till...</span>';
+}
+function cancelNotes(id){
+  const cell=document.getElementById("notes-"+id);
+  cell.classList.remove("editing");
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FILTERS
+// ══════════════════════════════════════════════════════════════════════════════
+function toggleStageFilter(stage){
+  activeStageFilter=activeStageFilter===stage?"":stage;
+  if(activeStageFilter)document.getElementById("filter-status").value="";
+  filterStatus=activeStageFilter?"":filterStatus;
+  render();
+}
+document.getElementById("search").addEventListener("input",e=>{filterSearch=e.target.value;render();});
+document.getElementById("filter-stad").addEventListener("change",e=>{filterStad=e.target.value;render();});
+document.getElementById("filter-status").addEventListener("change",e=>{
+  filterStatus=e.target.value; activeStageFilter=""; render();
+});
+
+// Sortable headers
+document.querySelectorAll("thead th[data-sort]").forEach(th=>{
+  th.addEventListener("click",()=>{
+    const k=th.dataset.sort;
+    if(sortKey===k)sortDir*=-1; else{sortKey=k;sortDir=1;}
+    document.querySelectorAll("thead th").forEach(t=>t.classList.remove("sorted"));
+    th.classList.add("sorted");
+    renderTable();
+  });
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// EXPORT CSV
+// ══════════════════════════════════════════════════════════════════════════════
+function exportCSV(){
+  const rows=[["ID","Klinik","Stad","Webbplats","Telefon","E-post","Status","Anteckningar","Senast uppdaterad"]];
+  LEADS.forEach(l=>rows.push([l.id,l.namn,l.stad,l.webbplats,l.telefon,l.email,STAGE_MAP[l.status]?.label||l.status,(l.anteckningar||"").replace(/"/g,'""'),l.senastUppdaterad||""]));
+  const csv=rows.map(r=>r.map(c=>`"${c}"`).join(",")).join("\n");
+  const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=`bahko_crm_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// STAD FILTER POPULATION
+// ══════════════════════════════════════════════════════════════════════════════
+function populateCities(){
+  const cities=[...new Set(LEADS.map(l=>l.stad))].sort();
+  const sel=document.getElementById("filter-stad");
+  cities.forEach(c=>{const o=document.createElement("option");o.value=c;o.textContent=c;sel.appendChild(o);});
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// OUTREACH SYNC
+// ══════════════════════════════════════════════════════════════════════════════
+let OUTREACH_STATE = {};
+
+async function syncOutreachState() {
+  try {
+    const res = await fetch('/api/state');
+    OUTREACH_STATE = await res.json();
+    LEADS.forEach(l => {
+      const s = OUTREACH_STATE[l.id];
+      if (!s) return;
+      l.outreachStep = s.lastStepSent || 0;
+      if (l.status !== 'ej_kontaktad') return; // preserve manual overrides
+      if (s.replied)      { l.status = 'svarat';   return; }
+      if (s.unsubscribed) { l.status = 'forlorad'; return; }
+      if (s.lastStepSent >= 2) { l.status = 'uppfoljning'; return; }
+      if (s.lastStepSent >= 1) { l.status = 'mejl_skickat'; }
+    });
+    render();
+  } catch {}
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// EMAIL MODAL
+// ══════════════════════════════════════════════════════════════════════════════
+function showEmailModal(step, namn) {
+  const tpl = TEMPLATES[step];
+  if (!tpl) return;
+  const {subject, body} = tpl(namn);
+  document.getElementById('modal-title').textContent = `Steg ${step} — Ämne: ${subject}`;
+  document.getElementById('modal-body').textContent = body;
+  const m = document.getElementById('email-modal');
+  m.style.display = 'flex';
+}
+function closeEmailModal() {
+  document.getElementById('email-modal').style.display = 'none';
+}
+document.getElementById('email-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeEmailModal();
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// SVAR
+// ══════════════════════════════════════════════════════════════════════════════
+function setSvar(id, val) {
+  const l = LEADS.find(x => x.id === id);
+  if (!l) return;
+  l.svar = val;
+  if (val === 'ja' && l.status !== 'kund' && l.status !== 'demo_bokad') {
+    l.status = 'svarat';
+  }
+  l.senastUppdaterad = new Date().toISOString();
+  saveState();
+  render();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// TAB SWITCH
+// ══════════════════════════════════════════════════════════════════════════════
+let activeTab = 'email';
+function switchTab(tab) {
+  activeTab = tab;
+  document.getElementById('email-view').classList.toggle('hidden', tab !== 'email');
+  document.getElementById('linkedin-view').classList.toggle('hidden', tab !== 'linkedin');
+  document.getElementById('tab-email').classList.toggle('active', tab === 'email');
+  document.getElementById('tab-linkedin').classList.toggle('active', tab === 'linkedin');
+  if (tab === 'linkedin') renderLI();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// LINKEDIN — CONFIG
+// ══════════════════════════════════════════════════════════════════════════════
+const LI_STAGES = [
+  {key:'ej_kontaktad', label:'Ej kontaktad', color:'rgba(240,237,255,.7)'},
+  {key:'forfragan',    label:'Förfrågan skickad', color:'#9B5CF6'},
+  {key:'kopplad',      label:'Kopplad', color:'#38BDF8'},
+  {key:'dm_skickat',   label:'DM skickat', color:'#F59E0B'},
+  {key:'svarat',       label:'Svarat', color:'#34D399'},
+];
+const LI_STAGE_MAP = Object.fromEntries(LI_STAGES.map(s=>[s.key,s]));
+
+const LI_TEMPLATES = {
+  1: (namn) => ({
+    label: 'Kontaktförfrågan',
+    body: `Hej! Jobbar med hemsidor för svenska estetiska kliniker. Kikade in på ${namn}.se och fick en idé. Hade velat höra din tanke om en grej.`,
+    note: '⚠️ Max 300 tecken — LinkedIn-gräns för kontaktförfrågan'
+  }),
+  2: (namn) => ({
+    label: 'DM — Dag 4 (efter koppling)',
+    body: `Hej!\n\nTack för att du accepterade.\n\nJag skickade ett mejl till er häromdagen med ett demo på hur ${namn} skulle kunna se ut med en modernare sida och tydligare bokningsknapp.\n\nFår jag fråga — hur nöjd är du med er nuvarande hemsida? Får den in bokningar som den ska?\n\nMathias`,
+    note: ''
+  }),
+  3: (namn) => ({
+    label: 'DM — Dag 7 (sista)',
+    body: `Hej!\n\nVill inte störa mer. Om ni någon gång tänker på hemsidan — hör gärna av dig. Svara bara "ja" och vi bokar ett gratis 15-minutersmöte.\n\nDemot finns kvar: bahkobyra.cloud\n\nLycka till med kliniken!\n\nMathias`,
+    note: ''
+  }),
+};
+
+// ══════════════════════════════════════════════════════════════════════════════
+// LINKEDIN — STATE
+// ══════════════════════════════════════════════════════════════════════════════
+let LI_PROFILES = {}; // loaded from /api/linkedin
+
+function loadLIState() {
+  try { return JSON.parse(localStorage.getItem('crm_linkedin_state') || '{}'); } catch { return {}; }
+}
+function saveLIState() {
+  const s = {};
+  LEADS.forEach(l => s[l.id] = {
+    li_status:      l.li_status      || 'ej_kontaktad',
+    li_dmStep:      l.li_dmStep      || 0,
+    li_anteckningar:l.li_anteckningar|| '',
+    li_uppdaterad:  l.li_uppdaterad  || null,
+  });
+  localStorage.setItem('crm_linkedin_state', JSON.stringify(s));
+}
+function mergeLIState() {
+  const s = loadLIState();
+  LEADS.forEach(l => {
+    const sv = s[l.id] || {};
+    l.li_status       = sv.li_status       || 'ej_kontaktad';
+    l.li_dmStep       = sv.li_dmStep       || 0;
+    l.li_anteckningar = sv.li_anteckningar || '';
+    l.li_uppdaterad   = sv.li_uppdaterad   || null;
+  });
+}
+
+async function syncLinkedInProfiles() {
+  try {
+    const res = await fetch('/api/linkedin');
+    LI_PROFILES = await res.json();
+    if (activeTab === 'linkedin') renderLI();
+  } catch {}
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// LINKEDIN — RENDER
+// ══════════════════════════════════════════════════════════════════════════════
+let liSortKey = 'namn', liSortDir = 1;
+
+function getLIFiltered() {
+  return LEADS.filter(l => {
+    if (filterSearch) { const q = norm(filterSearch); if (!norm(l.namn).includes(q) && !norm(l.stad).includes(q)) return false; }
+    if (filterStad && l.stad !== filterStad) return false;
+    return true;
+  }).sort((a,b) => {
+    let av = a[liSortKey]||'', bv = b[liSortKey]||'';
+    if (typeof av==='string') av=av.toLowerCase();
+    if (typeof bv==='string') bv=bv.toLowerCase();
+    return av<bv?-liSortDir:av>bv?liSortDir:0;
+  });
+}
+
+function renderLIStats() {
+  const bar = document.getElementById('li-stat-bar');
+  const counts = Object.fromEntries(LI_STAGES.map(s=>[s.key,0]));
+  LEADS.forEach(l => counts[l.li_status] = (counts[l.li_status]||0)+1);
+  bar.innerHTML = LI_STAGES.map(s=>`
+    <div class="stat-card" style="cursor:default">
+      <div class="stat-num" style="color:${s.color}">${counts[s.key]||0}</div>
+      <div class="stat-label">${s.label}</div>
+    </div>`).join('');
+}
+
+function renderLITable() {
+  const rows = getLIFiltered();
+  const tbody = document.getElementById('li-tbody');
+  if (!rows.length) { tbody.innerHTML=`<tr class="empty-row"><td colspan="7">Inga leads matchar filtret</td></tr>`; return; }
+  tbody.innerHTML = rows.map(l => {
+    const profile = LI_PROFILES[l.id];
+    const upd = l.li_uppdaterad ? new Date(l.li_uppdaterad).toLocaleDateString('sv-SE',{day:'numeric',month:'short'}) : '—';
+    const dmStep = l.li_dmStep || 0;
+
+    // LinkedIn URL cell
+    let liCell;
+    if (profile?.url) {
+      liCell = `<div><a class="li-url-link" href="${profile.url}" target="_blank">🔗 ${profile.name || 'Profil'}</a>
+        ${profile.title?`<div style="font-size:.68rem;color:var(--text-faint);margin-top:.1rem">${profile.title}</div>`:''}
+      </div>`;
+    } else {
+      const searchUrl = `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(l.namn + ' ägare Sverige')}`;
+      liCell = `<div class="li-not-found">Ej hittad&ensp;<a class="li-search-btn" href="${searchUrl}" target="_blank">Sök ↗</a></div>`;
+    }
+
+    // DM step chip
+    const dmHtml = dmStep > 0
+      ? `<span class="steg-chip" onclick="showDMModal(${dmStep},'${l.namn.replace(/'/g,"\\'")}')">DM ${dmStep}</span>`
+      : `<span class="steg-chip s0">—</span>`;
+
+    const stage = LI_STAGE_MAP[l.li_status] || LI_STAGE_MAP['ej_kontaktad'];
+
+    return `<tr>
+      <td><div class="td-name">${l.namn}</div><div style="font-size:.72rem;color:var(--text-faint);margin-top:.1rem">${l.webbplats}</div></td>
+      <td class="td-stad">${l.stad}</td>
+      <td>${liCell}</td>
+      <td>
+        <span class="pill" style="background:rgba(0,0,0,.2);color:${stage.color};border-color:${stage.color}40;cursor:pointer"
+          onclick="openLIStageDD(event,${l.id})">${stage.label}</span>
+        <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.4rem">
+          ${LI_TEMPLATES[1]?`<button class="li-search-btn" onclick="showDMModal(1,'${l.namn.replace(/'/g,"\\'")}')">Förfrågan</button>`:''}
+          ${LI_TEMPLATES[2]?`<button class="li-search-btn" onclick="showDMModal(2,'${l.namn.replace(/'/g,"\\'")}')">DM 2</button>`:''}
+          ${LI_TEMPLATES[3]?`<button class="li-search-btn" onclick="showDMModal(3,'${l.namn.replace(/'/g,"\\'")}')">DM 3</button>`:''}
+        </div>
+      </td>
+      <td>${dmHtml}</td>
+      <td class="td-notes" id="li-notes-${l.id}" onclick="editLINotes(${l.id})">
+        <div class="notes-display">${l.li_anteckningar||'<span style="color:var(--text-faint);font-style:italic">Klicka...</span>'}</div>
+        <textarea class="notes-edit" onblur="saveLINotes(${l.id},this.value)" onkeydown="if(event.key==='Escape'){cancelLINotes(${l.id})}" rows="3">${l.li_anteckningar||''}</textarea>
+      </td>
+      <td class="td-updated">${upd}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderLI() { renderLIStats(); renderLITable(); }
+
+// ══════════════════════════════════════════════════════════════════════════════
+// LINKEDIN — STAGE DROPDOWN
+// ══════════════════════════════════════════════════════════════════════════════
+let liDdTargetId = null;
+function openLIStageDD(e, id) {
+  e.stopPropagation();
+  liDdTargetId = id;
+  const dd = document.getElementById('stage-dd');
+  dd.innerHTML = LI_STAGES.map(s=>`
+    <div class="stage-dd-item" onclick="setLIStage(${id},'${s.key}')">
+      <div class="stage-dd-dot" style="background:${s.color}"></div>${s.label}
+    </div>`).join('');
+  const r = e.target.getBoundingClientRect();
+  dd.style.display = 'block';
+  let top = r.bottom+6, left = r.left;
+  if (top+dd.offsetHeight > window.innerHeight) top = r.top-dd.offsetHeight-6;
+  if (left+200 > window.innerWidth) left = window.innerWidth-210;
+  dd.style.top = top+'px'; dd.style.left = left+'px';
+}
+function setLIStage(id, stage) {
+  const l = LEADS.find(x=>x.id===id);
+  if (l) { l.li_status=stage; l.li_uppdaterad=new Date().toISOString(); saveLIState(); }
+  document.getElementById('stage-dd').style.display='none';
+  renderLI();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// LINKEDIN — DM MODAL (reuses email modal)
+// ══════════════════════════════════════════════════════════════════════════════
+function showDMModal(step, namn) {
+  const tpl = LI_TEMPLATES[step];
+  if (!tpl) return;
+  const {label, body, note} = tpl(namn);
+  const charCount = body.length;
+  document.getElementById('modal-title').textContent = `LinkedIn ${label}`;
+  document.getElementById('modal-body').textContent = body
+    + (note ? `\n\n${note}` : '')
+    + (step===1 ? `\n\n📊 ${charCount} tecken av 300` : '');
+  // Copy button for quick copy
+  const m = document.getElementById('email-modal');
+  m.style.display = 'flex';
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// LINKEDIN — NOTES
+// ══════════════════════════════════════════════════════════════════════════════
+function editLINotes(id) {
+  const cell = document.getElementById('li-notes-'+id);
+  cell.classList.add('editing');
+  const ta = cell.querySelector('.notes-edit');
+  ta.focus(); ta.selectionStart = ta.value.length;
+}
+function saveLINotes(id, val) {
+  const l = LEADS.find(x=>x.id===id);
+  if (l) { l.li_anteckningar=val.trim(); l.li_uppdaterad=new Date().toISOString(); saveLIState(); }
+  const cell = document.getElementById('li-notes-'+id);
+  cell.classList.remove('editing');
+  cell.querySelector('.notes-display').innerHTML = val.trim()||'<span style="color:var(--text-faint);font-style:italic">Klicka...</span>';
+}
+function cancelLINotes(id) {
+  document.getElementById('li-notes-'+id).classList.remove('editing');
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// LINKEDIN — SORT HEADERS
+// ══════════════════════════════════════════════════════════════════════════════
+document.querySelectorAll('thead th[data-li-sort]').forEach(th => {
+  th.addEventListener('click', () => {
+    const k = th.dataset.liSort;
+    if (liSortKey===k) liSortDir*=-1; else { liSortKey=k; liSortDir=1; }
+    document.querySelectorAll('thead th[data-li-sort]').forEach(t=>t.classList.remove('sorted'));
+    th.classList.add('sorted');
+    renderLITable();
+  });
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════════════════════
+mergeState();
+mergeLIState();
+populateCities();
+render();
+syncOutreachState();
+syncLinkedInProfiles();
+</script>
+</body>
+</html>

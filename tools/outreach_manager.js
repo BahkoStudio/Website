@@ -12,7 +12,7 @@
  * State sparas i .tmp/outreach_state.json
  *
  * Krav:
- *   .env med: RESEND_API_KEY, FROM_EMAIL, FROM_NAME, DEMO_URL
+ *   .env med: FROM_EMAIL, FROM_NAME, SMTP_PASSWORD
  *
  * Användning:
  *   node tools/outreach_manager.js            # Kör utskick
@@ -26,7 +26,7 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { exec } from 'child_process';
+import nodemailer from 'nodemailer';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -42,11 +42,18 @@ function loadEnv() {
 }
 loadEnv();
 
-const BREVO_API_KEY  = process.env.BREVO_API_KEY;
-const FROM_EMAIL     = process.env.FROM_EMAIL     || 'mathias@bahkostudio.live';
+const FROM_EMAIL     = process.env.FROM_EMAIL     || 'mathias@bahkobyra.se';
 const FROM_NAME      = process.env.FROM_NAME      || 'Mathias Bahko';
-const DEMO_URL       = process.env.DEMO_URL       || 'https://bahkobyra.se/kliniker/elara-klinik-demo-v2.html';
+const SMTP_PASSWORD  = process.env.SMTP_PASSWORD;
 const MAX_PER_DAY    = parseInt(process.env.MAX_PER_DAY || '20', 10);
+const LOOM_URL       = process.env.LOOM_URL       || null; // Valfritt: länk till Loom-video
+
+const transporter = nodemailer.createTransport({
+  host: 'send.one.com',
+  port: 465,
+  secure: true,
+  auth: { user: FROM_EMAIL, pass: SMTP_PASSWORD }
+});
 
 // Days between steps (cumulative from step 1)
 const STEP_DAYS = { 1: 0, 2: 3, 3: 5, 4: 7 };
@@ -114,11 +121,7 @@ function countSentToday(state) {
 
 // ── EMAIL TEMPLATES ────────────────────────────────────────────────────────
 function template(step, lead) {
-  const { namn, stad, webbplats } = lead;
-  // Use enriched decision-maker name for greeting if available
-  const fornavn = lead.enriched_name
-    ? lead.enriched_name.split(' ')[0]
-    : namn.split(' ')[0];
+  const { namn } = lead;
 
   const styles = `
     font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -128,19 +131,6 @@ function template(step, lead) {
     line-height: 1.7;
     font-size: 15px;
   `;
-  const linkStyle = 'color: #8B5E3C; text-decoration: none; font-weight: 600;';
-  const ctaStyle = `
-    display: inline-block;
-    background: #0c0a09;
-    color: #c9a96e !important;
-    padding: 14px 28px;
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 14px;
-    letter-spacing: 0.05em;
-    margin-top: 8px;
-  `;
   const footerStyle = `
     margin-top: 32px;
     padding-top: 20px;
@@ -149,17 +139,13 @@ function template(step, lead) {
     color: #888;
   `;
 
-  const unsubStyle = 'color:#bbb; font-size:11px; text-decoration:none;';
   const signature = `
     <div style="${footerStyle}">
       <strong style="color:#1a1a1a">${FROM_NAME}</strong><br>
-      Bahko Byrå &nbsp;·&nbsp; Synlighet som säljer.<br>
-      <a href="https://bahkobyra.se" style="${linkStyle}">bahkobyra.se</a>
-      &nbsp;&nbsp;<span style="color:#ccc">|</span>&nbsp;&nbsp;
-      <a href="mailto:${FROM_EMAIL}" style="${linkStyle}">${FROM_EMAIL}</a>
+      Bahko Byrå | Synlighet som säljer.<br>
+      bahkobyra.se &nbsp;|&nbsp; ${FROM_EMAIL}
       <div style="margin-top:12px; font-size:11px; color:#bbb;">
-        Vill du inte få fler mejl?
-        <a href="mailto:${FROM_EMAIL}?subject=Avregistrera&body=Vänligen avregistrera mig från er utskickslista." style="${unsubStyle}">Avregistrera dig här.</a>
+        Vill du inte få fler mejl? Svara med "AVREGISTRERA" så tar vi bort dig direkt.
       </div>
     </div>
   `;
@@ -168,15 +154,14 @@ function template(step, lead) {
     return {
       subject: `Har ${namn} tänkt på detta?`,
       html: `<div style="${styles}">
-        <p>Hej${lead.enriched_name ? ' ' + fornavn : ''},</p>
-        <p>Jag heter ${FROM_NAME} och driver <strong>Bahko Byrå</strong> — en digital byrå som specialiserat sig på att hjälpa kliniker i Sverige att synas och attrahera fler patienter online.</p>
-        <p>Jag tittade på er nuvarande webbplats (<a href="https://${webbplats}" style="${linkStyle}">${webbplats}</a>) och hade ett par tankar om hur den kan förbättras för att konvertera fler besökare till bokningar.</p>
-        <p>Jag har tagit fram ett <strong>kostnadsfritt demo</strong> som visar exakt hur ${namn}s nya hemsida skulle kunna se ut — med snabbare laddtid, mobilanpassad design och en tydlig bokningsfunktion:</p>
-        <p style="text-align:center; margin: 24px 0;">
-          <a href="${DEMO_URL}" style="${ctaStyle}">Se ditt demo →</a>
-        </p>
-        <p>Det tar under 2 minuter att titta på. Inga förpliktelser.</p>
-        <p>Är ni öppna för att ta en snabb koll?</p>
+        <p>Hej!</p>
+        <p>Jag heter Mathias och jobbar med hemsidor för kliniker.</p>
+        <p>Jag kikade in på er sida och tog fram ett <strong>gratis demo</strong>. Det visar hur ${namn} kan se ut med en nyare design och en tydlig bokningsknapp.</p>
+        <p>Vi hjälpte nyligen en klinik som hade en liknande sida. Efter bytet fick de <strong>36% fler bokningar</strong> och hamnade på första sidan på Google inom 30 dagar.</p>
+        ${LOOM_URL ? `<p>Jag spelade in en kort genomgång (90 sek) där jag visar vad jag menar:<br><a href="${LOOM_URL}" style="display:inline-block;margin-top:6px;padding:10px 18px;background:#1a1a1a;color:#fff;text-decoration:none;border-radius:4px;font-size:14px;">▶ Se videon</a></p>` : ''}
+        <p>Ta en titt på demot: <a href="https://bahkobyra.cloud">bahkobyra.cloud</a></p>
+        <p>Det tar under 2 minuter. Inga krav.</p>
+        <p>Hör gärna av er!</p>
         ${signature}
       </div>`
     };
@@ -186,13 +171,10 @@ function template(step, lead) {
     return {
       subject: `Såg ni mitt förslag, ${namn}?`,
       html: `<div style="${styles}">
-        <p>Hej igen,</p>
-        <p>Jag skickade ett mejl häromdagen om ett kostnadsfritt demo vi tagit fram för kliniker i ${stad}.</p>
-        <p>Ville bara följa upp för att säkra att ni fick det — och om ni har 2 minuter är det verkligen värt att se:</p>
-        <p style="text-align:center; margin: 24px 0;">
-          <a href="${DEMO_URL}" style="${ctaStyle}">Se demot →</a>
-        </p>
-        <p>Vi jobbar för tillfället med ett fåtal kliniker i Sverige och vill säkerställa att <strong>${namn}</strong> inte missar möjligheten.</p>
+        <p>Hej igen!</p>
+        <p>Såg ni demot jag skickade om ${namn}?</p>
+        <p>Länken: <a href="https://bahkobyra.cloud">bahkobyra.cloud</a></p>
+        <p>Vi jobbar just nu med ett par kliniker i Sverige och det finns fortfarande plats. Vill inte att ni missar det.</p>
         ${signature}
       </div>`
     };
@@ -200,20 +182,12 @@ function template(step, lead) {
 
   if (step === 3) {
     return {
-      subject: `Kliniker som bytte hemsida — resultaten`,
+      subject: `Kliniker som bytte hemsida`,
       html: `<div style="${styles}">
-        <p>Hej,</p>
-        <p>Kliniker som investerar i en professionell, konverteringsoptimerad hemsida ser i genomsnitt:</p>
-        <ul style="margin: 16px 0; padding-left: 20px; line-height: 2.2;">
-          <li>Fler spontana bokningsförfrågningar via hemsidan</li>
-          <li>Bättre ranking på Google för lokala sökningar</li>
-          <li>Tydligare professionellt intryck som motiverar högre priser</li>
-        </ul>
-        <p>Vi har tagit fram ett <strong>skräddarsytt demo specifikt för ${namn}</strong>. Det visar hur er närvaro online kan transformeras:</p>
-        <p style="text-align:center; margin: 24px 0;">
-          <a href="${DEMO_URL}" style="${ctaStyle}">Se ${namn}s demo →</a>
-        </p>
-        <p>Svarar ni i dag bjuder vi på en kostnadsfri 30-minutersgenomgång.</p>
+        <p>Hej!</p>
+        <p>Kliniker som byter till en modern hemsida får oftast fler bokningar och syns bättre på Google.</p>
+        <p>Vi har gjort ett demo redo för ${namn}: <a href="https://bahkobyra.cloud">bahkobyra.cloud</a></p>
+        <p>Om ni svarar idag bjuder vi på ett gratis 15-minutersmöte.</p>
         ${signature}
       </div>`
     };
@@ -223,15 +197,11 @@ function template(step, lead) {
     return {
       subject: `Sista mejlet från mig, ${namn}`,
       html: `<div style="${styles}">
-        <p>Hej,</p>
-        <p>Det här är mitt sista mejl — vill inte vara påträngande.</p>
-        <p>Om ni någon gång undrar vad en modern klinikhemsida kan göra för er, vet ni var ni hittar oss.</p>
-        <p>Svara bara <strong>"ja"</strong> på det här mejlet så bokar jag ett kostnadsfritt 20-minuterssamtal.</p>
-        <p>Demot finns kvar:</p>
-        <p style="text-align:center; margin: 24px 0;">
-          <a href="${DEMO_URL}" style="${ctaStyle}">Se demo →</a>
-        </p>
-        <p>Önskar ${namn} all lycka framöver!</p>
+        <p>Hej!</p>
+        <p>Det här är mitt sista mejl, lovar.</p>
+        <p>Om ni någon gång funderar på att byta hemsida kan ni alltid höra av er. Svara bara <strong>"ja"</strong> så bokar vi ett gratis 15-minutersmöte.</p>
+        <p>Demot finns kvar: <a href="https://bahkobyra.cloud">bahkobyra.cloud</a></p>
+        <p>Lycka till med kliniken!</p>
         ${signature}
       </div>`
     };
@@ -245,31 +215,24 @@ async function sendEmail(to, subject, html, dryRun) {
     return true;
   }
 
-  if (!BREVO_API_KEY) {
-    console.error('  ✗ BREVO_API_KEY saknas i .env');
+  if (!SMTP_PASSWORD) {
+    console.error('  ✗ SMTP_PASSWORD saknas i .env');
     return false;
   }
 
-  const res = await fetch('https://api.brevo.com/v3/smtp/email', {
-    method: 'POST',
-    headers: {
-      'api-key': BREVO_API_KEY,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      sender:      { name: FROM_NAME, email: FROM_EMAIL },
-      to:          [{ email: to }],
+  try {
+    await transporter.sendMail({
+      from: `"${FROM_NAME}" <${FROM_EMAIL}>`,
+      to,
+      bcc: FROM_EMAIL,
       subject,
-      htmlContent: html
-    })
-  });
-
-  const data = await res.json();
-  if (!res.ok) {
-    console.error(`  ✗ Fel: ${data.message || JSON.stringify(data)}`);
+      html
+    });
+    return true;
+  } catch (err) {
+    console.error(`  ✗ Fel: ${err.message}`);
     return false;
   }
-  return true;
 }
 
 // ── DETERMINE CANDIDATES ───────────────────────────────────────────────────
@@ -428,8 +391,11 @@ async function main() {
       console.log(`✗`);
     }
 
-    // Slight delay to avoid rate limits
-    if (!dryRun) await new Promise(r => setTimeout(r, 200));
+    // 5 minute delay between sends
+    if (!dryRun) {
+      console.log(`  ⏳ Väntar 5 minuter...`);
+      await new Promise(r => setTimeout(r, 300000));
+    }
   }
 
   if (!dryRun) saveState(state);
