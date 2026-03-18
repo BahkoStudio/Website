@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recept – MaykasKitchen</title>
+  <meta name="description" content="Autentiska assyriska och syrianska recept från MaykasKitchen.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400;1,600&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --crimson: #8C1A26; --crimson-lt: #B32233;
+      --gold: #C9952A; --gold-lt: #E0B84A;
+      --purple: #4A1A6B; --purple-lt: #6B2E96;
+      --ivory: #F5F0E5; --cream: #F5F0E5;
+      --white: #FEFCF7; --beige: #E8DDD0;
+      --charcoal: #1A100E; --mid: #6A5A52;
+      --dark: #0E0A08;
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --sans: 'Poppins', system-ui, sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--ivory); color: var(--charcoal); font-family: var(--sans); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+
+    /* ── HEADER ── */
+    .site-header { position: sticky; top: 0; z-index: 100; padding: 1.2rem 5vw; display: flex; align-items: center; justify-content: space-between; background: rgba(245,240,229,0.96); backdrop-filter: blur(16px); border-bottom: 1px solid var(--beige); }
+    .nav-logo { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; color: var(--charcoal); text-decoration: none; letter-spacing: 0.04em; }
+    .back-btn { display: flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; font-weight: 500; color: var(--crimson); text-decoration: none; padding: 0.5rem 1rem; border: 1.5px solid var(--crimson); border-radius: 50px; transition: background 0.2s, color 0.2s; }
+    .back-btn:hover { background: var(--crimson); color: var(--ivory); }
+
+    /* ── RECIPE DETAIL ── */
+    .recipe-page { max-width: 1080px; margin: 0 auto; padding: 3rem 5vw 5rem; }
+
+    /* Hero */
+    .recipe-hero { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin-bottom: 3rem; align-items: start; }
+    .recipe-hero-img { border-radius: 16px; overflow: hidden; aspect-ratio: 4/3; }
+    .recipe-hero-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .recipe-hero-content { display: flex; flex-direction: column; gap: 1rem; }
+    .recipe-badges { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .recipe-badge-tag { font-size: 0.72rem; font-weight: 500; padding: 0.3rem 0.8rem; border-radius: 50px; background: var(--beige); color: var(--mid); text-transform: uppercase; letter-spacing: 0.05em; }
+    .recipe-title { font-family: var(--serif); font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 600; line-height: 1.15; color: var(--charcoal); }
+    .recipe-desc { font-size: 0.9rem; color: var(--mid); line-height: 1.75; }
+    .recipe-meta { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .recipe-meta-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; color: var(--mid); }
+    .recipe-meta-item svg { color: var(--crimson); }
+    .recipe-meta-item strong { color: var(--charcoal); }
+
+    /* Personal story */
+    .recipe-story { background: var(--white); border-left: 3px solid var(--gold); border-radius: 0 12px 12px 0; padding: 1.5rem 2rem; margin-bottom: 2.5rem; }
+    .recipe-story p { font-family: var(--serif); font-size: 1.05rem; font-weight: 400; line-height: 1.85; color: var(--charcoal); font-style: italic; }
+    .recipe-story p + p { margin-top: 0.75rem; }
+
+    /* Content grid */
+    .recipe-content { display: grid; grid-template-columns: 1fr 2.2fr; gap: 2.5rem; align-items: start; margin-bottom: 2.5rem; }
+    .recipe-ingredients { background: var(--white); border-radius: 16px; padding: 1.8rem; position: sticky; top: 100px; border: 1px solid var(--beige); border-top: 3px solid var(--crimson); }
+    .recipe-instructions { display: flex; flex-direction: column; gap: 2rem; }
+    .recipe-instructions-card { background: var(--white); border-radius: 16px; padding: 2rem; border: 1px solid var(--beige); }
+
+    .card-title { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; color: var(--charcoal); margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.5rem; }
+    .card-title::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--gold), transparent); }
+
+    .ing-section { margin-bottom: 1.2rem; }
+    .ing-section-title { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--crimson); margin-bottom: 0.6rem; }
+    .ing-list { list-style: none; }
+    .ing-list li { font-size: 0.85rem; color: var(--charcoal); padding: 0.35rem 0; border-bottom: 1px solid var(--beige); display: flex; align-items: center; gap: 0.5rem; }
+    .ing-list li::before { content: '·'; color: var(--gold); font-weight: 700; flex-shrink: 0; }
+    .ing-list li:last-child { border-bottom: none; }
+
+    .step-section { margin-bottom: 1.5rem; }
+    .step-section-title { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--purple); margin-bottom: 0.8rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--beige); }
+    .step-list { list-style: none; display: flex; flex-direction: column; gap: 0.8rem; }
+    .step-item { display: flex; gap: 0.8rem; align-items: flex-start; }
+    .step-num { width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg, var(--crimson), var(--purple)); color: var(--ivory); font-size: 0.72rem; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+    .step-text { font-size: 0.88rem; color: var(--charcoal); line-height: 1.65; }
+
+    /* Tips */
+    .recipe-tips { background: linear-gradient(135deg, rgba(140,26,38,0.04), rgba(74,26,107,0.04)); border: 1px solid var(--beige); border-radius: 16px; padding: 1.8rem; }
+    .tips-list { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+    .tips-list li { font-size: 0.87rem; color: var(--mid); line-height: 1.6; display: flex; gap: 0.6rem; }
+    .tips-list li::before { content: '✦'; color: var(--gold); font-size: 0.65rem; margin-top: 0.25rem; flex-shrink: 0; }
+
+    /* Not found */
+    .not-found { text-align: center; padding: 8rem 2rem; }
+    .not-found h2 { font-family: var(--serif); font-size: 2.5rem; color: var(--charcoal); margin-bottom: 1rem; }
+    .not-found p { color: var(--mid); margin-bottom: 2rem; }
+    .btn-primary { display: inline-block; padding: 0.8rem 2rem; background: linear-gradient(135deg, var(--crimson), var(--purple)); color: var(--ivory); text-decoration: none; border-radius: 50px; font-size: 0.85rem; font-weight: 500; transition: opacity 0.2s; }
+    .btn-primary:hover { opacity: 0.88; }
+
+    @media (max-width: 900px) {
+      .recipe-hero { grid-template-columns: 1fr; gap: 1.5rem; }
+      .recipe-content { grid-template-columns: 1fr; }
+      .recipe-ingredients { position: static; }
+    }
+    @media (max-width: 600px) {
+      .recipe-page { padding: 2rem 4vw 4rem; }
+      .recipe-story { padding: 1rem 1.2rem; }
+    }
+    .lang-toggle { background: transparent; border: 1.5px solid var(--gold); color: var(--gold); font-family: var(--sans); font-size: 0.62rem; font-weight: 600; letter-spacing: 0.12em; padding: 0.32rem 0.7rem; border-radius: 50px; cursor: pointer; transition: background 0.2s, color 0.2s; line-height: 1; }
+    .lang-toggle:hover { background: var(--gold); color: var(--dark); }
+  </style>
+  <script src="js/i18n.js"></script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4880340628636698" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <a class="nav-logo" href="index.html">MaykasKitchen</a>
+  <div style="display:flex;align-items:center;gap:0.8rem;">
+    <button class="lang-toggle" id="lang-toggle">EN</button>
+    <a class="back-btn" href="index.html#recept">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      <span data-i18n="back">Tillbaka</span>
+    </a>
+  </div>
+</header>
+
+<main class="recipe-page" id="recipe-content">
+  <div class="not-found">
+    <p data-i18n="r.loading">Laddar recept…</p>
+  </div>
+</main>
+
+<script>
+/* ── helper: pick language variant ── */
+function tv(sv, en) { return (window.MK_LANG === 'en' && en !== undefined) ? en : sv; }
+
+const RECIPES = {
+  'qrimyothe-munkar': {
+    title: 'Qrimyothe – Mormors munkar 🍩',
+    title_en: "Qrimyothe – Grandma's Doughnuts 🍩",
+    description: 'Mamma berättar om mormors kärlek i varje tugga ♥️ Det här receptet på Qrimyothe är mer än bara ingredienser – det är ett stycke historia från mitt hem, min kultur och framför allt från mitt hjärta.',
+    description_en: "Mum tells of grandma's love in every bite ♥️ This Qrimyothe recipe is more than just ingredients – it's a piece of history from my home, my culture and above all from my heart.",
+    image: 'https://j0bzpddd4j.ufs.sh/f/bwjssIq7FWHCMH3uifMpaES95dj1pBAJ4iwc3fNXxvqYhzGT',
+    time: '120', portions: '20',
+    badges: ['Traditionellt','Bakverk','Assyriskt','Dessert'],
+    personalStory: 'Det här receptet på Qrimyothe är mer än bara ingredienser – det är ett stycke historia från mitt hem, min kultur och framför allt från mitt hjärta.\n\nMin mamma har berättat hur mormor brukade baka dessa munkar hemma, särskilt när resurserna var knappa. Med mjöl, vatten, jäst och en nypa socker skapade hon något sött, varmt och älskat av barnen 👌😋.\n\nQrimyothe blev en kär tradition – ett sätt att visa kärlek genom enkelhet. Doften av nygräddade munkar bar med sig barndom, trygghet och omtanke. De påminde oss om att det inte krävs mycket för att ge – bara vilja, kärlek och omtanke 💫\n\nMed det här receptet vill jag bevara hennes minne och föra vidare smaken av våra rötter ❤️.',
+    personalStory_en: "This Qrimyothe recipe is more than just ingredients – it is a piece of history from my home, my culture and above all from my heart.\n\nMy mum has told how grandma used to bake these doughnuts at home, especially when resources were scarce. With flour, water, yeast and a pinch of sugar she created something sweet, warm and beloved by the children 👌😋.\n\nQrimyothe became a cherished tradition – a way to show love through simplicity. The smell of freshly baked doughnuts carried childhood, security and care. They reminded us that little is needed to give – just will, love and care 💫\n\nWith this recipe I want to preserve her memory and pass on the taste of our roots ❤️.",
+    ingredients: [{section:'Huvudingredienser',section_en:'Main ingredients',items:['7 dl varmt vatten (minst 40°C)','1 paket torrjäst (ca 12 g)','2 msk socker','1 msk salt','16 dl vetemjöl (ca 960 g)','Olja till fritering'],items_en:['7 dl warm water (at least 40°C)','1 packet dry yeast (approx. 12 g)','2 tbsp sugar','1 tbsp salt','16 dl plain flour (approx. 960 g)','Oil for frying']}],
+    instructions: [{section:'Förbered degen',section_en:'Prepare the dough',steps:['Häll det varma vattnet i en stor bunke.','Tillsätt socker och torrjäst. Rör om och låt stå i 10 minuter tills det börjar bubbla.','Tillsätt salt och sedan mjölet lite i taget under omrörning.','Knåda degen tills den blir jämn och elastisk – ca 10 min för hand.'],steps_en:['Pour the warm water into a large bowl.','Add sugar and dry yeast. Stir and let stand for 10 minutes until it starts to bubble.','Add salt and then the flour little by little while stirring.','Knead the dough until smooth and elastic – about 10 min by hand.']},{section:'Jäsning',section_en:'Rising',steps:['Täck bunken med plastfolie eller bakduk.','Låt degen jäsa i 1–1,5 timme på en varm plats tills den fördubblats.'],steps_en:['Cover the bowl with cling film or a cloth.','Let the dough rise for 1–1.5 hours in a warm place until doubled.']},{section:'Forma & fritera',section_en:'Shape & fry',steps:['Häll lite olja på händerna, ta små bitar och forma till bollar eller ringar.','Hetta upp olja till ca 180°C i en djup kastrull.','Fritera tills gyllenbruna – vänd för jämn färg. Låt rinna av på papper.'],steps_en:['Pour a little oil on your hands, take small pieces and shape into balls or rings.','Heat oil to about 180°C in a deep saucepan.','Fry until golden brown – turn for even colour. Drain on paper towel.']},{section:'Servering',section_en:'Serving',steps:['Servera som de är eller pudra med florsocker.','Ringla sirap eller servera med glass, hallon och mynta 😍'],steps_en:['Serve as they are or dust with icing sugar.','Drizzle with syrup or serve with ice cream, raspberries and mint 😍']}],
+    tips: ['Degen ska vara mjuk – tillsätt mer mjöl om klibbig','Oljans temperatur är avgörande – 180°C ger bäst resultat','Traditionellt med socker eller honung','Förvaras i lufttät behållare 2–3 dagar','Uppvärmda i ugn blir de extra goda'],
+    tips_en: ['Dough should be soft – add more flour if sticky','Oil temperature is key – 180°C gives best results','Traditionally served with sugar or honey','Store in an airtight container for 2–3 days','Reheated in the oven they taste extra good']
+  },
+  'kikarts-tikka-masala': {
+    title: 'Den krämigaste kikärts tikka masalan 🤯🔥',
+    title_en: 'The Creamiest Chickpea Tikka Masala 🤯🔥',
+    description: 'En gryta som kramar om både hjärta och smaklökar. Fullproppad med kryddor och värme, klar på bara 20 minuter. Helt vegansk – men så god att ingen märker det 😊',
+    description_en: "A stew that hugs both heart and taste buds. Packed with spices and warmth, ready in just 20 minutes. Completely vegan – but so good nobody will notice 😊",
+    image: 'https://j0bzpddd4j.ufs.sh/f/bwjssIq7FWHCKJbVDrdNwFxeKMmirjvq6ZL34tbPu8S2X5Q9',
+    time: '20', portions: '4–6',
+    badges: ['Vegan','Indiskt','Vegetariskt','Snabb'],
+    personalStory: 'Den här rätten har blivit en riktig favorit hemma hos oss. Barnen älskar den krämiga konsistensen och jag älskar hur enkelt det är att laga något så smakrikt på så kort tid.',
+    personalStory_en: 'This dish has become a real favourite at home. The kids love the creamy texture and I love how easy it is to cook something so flavourful in such a short time.',
+    ingredients: [{section:'Huvudingredienser',section_en:'Main ingredients',items:['1 gul lök, finhackad','3 vitlöksklyftor, finrivna','390g krossade tomater','5 dl vatten','2 × 380g kikärtor (avrunna och sköljda)','350g kokosmjölk','Rapsolja till stekning'],items_en:['1 yellow onion, finely chopped','3 garlic cloves, finely grated','390g crushed tomatoes','5 dl water','2 × 380g chickpeas (drained and rinsed)','350g coconut milk','Rapeseed oil for frying']},{section:'Kryddor',section_en:'Spices',items:['1 msk salt','1 msk lökpulver','1 msk paprikapulver','1 tsk chiliflakes','1 msk malen ingefära','1 msk spiskummin','½ msk malen koriander','1 msk gurkmeja'],items_en:['1 tbsp salt','1 tbsp onion powder','1 tbsp paprika powder','1 tsp chili flakes','1 tbsp ground ginger','1 tbsp cumin','½ tbsp ground coriander','1 tbsp turmeric']}],
+    instructions: [{steps:['Hetta upp rapsolja i en kastrull. Fräs löken tills mjuk och gyllene.','Tillsätt vitlöken och fräs en kort stund.','Häll i krossade tomater och vatten. Sjuda under lock ca 10 min.','Blanda ner alla kryddor och låt dem fräsa med.','Rör ner kikärtor och kokosmjölk. Sjuda på låg värme 10 min.','Servera med ris, naan eller som den är.'],steps_en:['Heat rapeseed oil in a saucepan. Sauté the onion until soft and golden.','Add the garlic and sauté briefly.','Pour in crushed tomatoes and water. Simmer covered for about 10 min.','Mix in all the spices and let them sizzle together.','Stir in chickpeas and coconut milk. Simmer on low heat for 10 min.','Serve with rice, naan or as is.']}],
+    tips: ['Extra gott med nybakat naan','Mixa hälften av kikärtorna för ännu krämigare konsistens','Smakar ännu bättre dagen efter','Kan frysas i 3 månader','Servera med basmatiris eller quinoa'],
+    tips_en: ['Extra good with freshly baked naan','Blend half the chickpeas for an even creamier texture','Tastes even better the next day','Can be frozen for 3 months','Serve with basmati rice or quinoa']
+  },
+  'lax-risbowl': {
+    title: 'Kryddig lax- & risbowl',
+    title_en: 'Spicy Salmon & Rice Bowl',
+    description: 'Perfekt som fräsch vardagsmiddag eller lyxig lunch. Snabbt, enkelt och smakrikt – du vill göra den här om och om igen!',
+    description_en: "Perfect as a fresh weekday dinner or a luxurious lunch. Quick, easy and flavourful – you'll want to make this again and again!",
+    image: 'https://j0bzpddd4j.ufs.sh/f/bwjssIq7FWHC8y19NS5037zrR9qXSut4TKmZEpjlBcOhHew0',
+    time: '45', portions: '4',
+    badges: ['Fisk','Hälsosam','Snabb'],
+    ingredients: [{section:'Laxen',section_en:'The salmon',items:['500g färsk laxfilé','1 tsk salt','½ tsk cayennepeppar','1 tsk vitlökspulver'],items_en:['500g fresh salmon fillet','1 tsp salt','½ tsp cayenne pepper','1 tsp garlic powder']},{section:'Riset',section_en:'The rice',items:['3 dl basmatiris','6 dl vatten','1 tsk salt'],items_en:['3 dl basmati rice','6 dl water','1 tsp salt']},{section:'Primörgrönsaker',section_en:'Vegetables',items:['1 bunt sparris','1 påse mini morötter','3–4 salladslökar','5–6 rädisor','1 paket sockerärtor','1 vitlöksklyfta','1 tsk havssalt','1 krm chiliflakes','Rivet skal från ½ citron','1 msk olivolja'],items_en:['1 bunch asparagus','1 bag baby carrots','3–4 spring onions','5–6 radishes','1 pack sugar snap peas','1 garlic clove','1 tsp sea salt','1 pinch chili flakes','Zest from ½ lemon','1 tbsp olive oil']},{section:'Honungs- & senapsmajonnäs',section_en:'Honey & mustard mayo',items:['1 dl majonnäs','2 tsk dijonsenap','1 tsk honung','1 krm cayennepeppar','Saft från ½ citron'],items_en:['1 dl mayonnaise','2 tsp Dijon mustard','1 tsp honey','1 pinch cayenne pepper','Juice from ½ lemon']}],
+    instructions: [{section:'Tillagning',section_en:'Preparation',steps:['Skär laxen i kuber och krydda med salt, cayenne och vitlökspulver. Tillaga i ugn 180°C i ca 15 min.','Koka riset: skölj, koka upp med saltat vatten, sänk värmen och sjuda 10 min.','Blanda majonnäs, dijonsenap, honung, cayenne och citronsaft till en slät sås.','Skär grönsakerna och fräs snabbt i olja med vitlök, salt, chili och citronzest.','Fördela ris i skålar, toppa med grönsaker och lax, ringla över såsen.'],steps_en:['Cut the salmon into cubes and season with salt, cayenne and garlic powder. Bake in oven at 180°C for about 15 min.','Cook the rice: rinse, bring to the boil with salted water, lower heat and simmer 10 min.','Mix mayonnaise, Dijon mustard, honey, cayenne and lemon juice into a smooth sauce.','Cut the vegetables and quickly sauté in oil with garlic, salt, chili and lemon zest.','Divide rice into bowls, top with vegetables and salmon, drizzle with the sauce.']}],
+    tips: ['Byt lax mot tofu för veganskt alternativ','Förbered grönsakerna i förväg','Servera med extra citronklyftor','Avokado och marinerad rödlök passar också bra'],
+    tips_en: ['Swap salmon for tofu for a vegan option','Prepare the vegetables in advance','Serve with extra lemon wedges','Avocado and pickled red onion also work great']
+  },
+  'kafta-bil-sejnie': {
+    title: 'Kafta bil sejnie – Köttbullar i tomatsås',
+    title_en: 'Kafta bil sejnie – Meatballs in Tomato Sauce',
+    description: 'En traditionell rätt från Mellanöstern med saftiga köttbullar och potatis i en smakrik tomatsås.',
+    description_en: 'A traditional Middle Eastern dish with juicy meatballs and potatoes in a rich tomato sauce.',
+    image: 'https://j0bzpddd4j.ufs.sh/f/bwjssIq7FWHC8zXxYz037zrR9qXSut4TKmZEpjlBcOhHew02',
+    time: '60', portions: '5–6',
+    badges: ['Kött','Traditionellt','Assyriskt'],
+    ingredients: [{section:'Biffarna',section_en:'The patties',items:['450g nötfärs','1 liten gul lök, finskuren','½ liten gul paprika, finskuren','Näve persilja'],items_en:['450g minced beef','1 small yellow onion, finely cut','½ small yellow pepper, finely cut','Handful of parsley']},{section:'Tomatsåsen',section_en:'The tomato sauce',items:['Stekta biffarna','450g delikatesspotatis','1 liter vatten','3 msk tomatpuré','3 msk kalvbuljong','1 tsk chiliflakes','1 nypa havsalt','1 tsk koriander'],items_en:['The fried patties','450g baby potatoes','1 litre water','3 tbsp tomato paste','3 tbsp veal stock','1 tsp chili flakes','1 pinch sea salt','1 tsp coriander']}],
+    instructions: [{section:'Tillagning',section_en:'Preparation',steps:['Blanda färs med grönsaker, forma till bollar och platta ut i handen.','Stek lätt i olja.','Tillsätt vatten och tomatpuré.','Halvera delikatesspotatisarna och lägg i grytan.','Tillsätt buljong och krydda med chiliflakes, salt och koriander.','Lägg på lock och låt koka klart.','Servera med ris och vermicellinudlar.'],steps_en:['Mix mince with vegetables, shape into balls and flatten in your hand.','Lightly fry in oil.','Add water and tomato paste.','Halve the baby potatoes and add to the pot.','Add stock and season with chili flakes, salt and coriander.','Cover and cook through.','Serve with rice and vermicelli noodles.']}],
+    tips: ['Autentiskt med ris och vermicellinudlar','Justera chiliflakes efter smak','Kan förberedas dagen innan','Spiskummin i färsen ger mer smak'],
+    tips_en: ['Authentic with rice and vermicelli noodles','Adjust chili flakes to taste','Can be prepared the day before','Cumin in the mince gives more flavour']
+  },
+  'kofta-bil-sanieh': {
+    title: 'Köfta bil Sanieh',
+    title_en: 'Köfta bil Sanieh',
+    description: 'Mellanösterns vardagsfavorit med smak av hem. Kryddig köttfärs, potatis och padron paprika i mustig tomatsås.',
+    description_en: "The Middle East's everyday favourite with a taste of home. Spiced minced meat, potatoes and padron peppers in a rich tomato sauce.",
+    image: 'https://j0bzpddd4j.ufs.sh/f/bwjssIq7FWHCGg5LVZ9bnLa0KVhUD3INroEj6yqmid4HwlYB',
+    time: '60', portions: '8',
+    badges: ['Kött','Traditionellt','Syriskt'],
+    personalStory: 'Köfta bil Sanieh är en rätt som doftar av barndom, gemenskap och kryddor från det syriska köket. Mina föräldrar kommer från Syrien och just den här rätten har alltid haft en självklar plats vid våra matbord.\n\nFör mig bär Köfta bil Sanieh inte bara smaken av Mellanöstern, utan också smaken av min familj, vår historia och de där stunderna då vi verkligen var tillsammans.',
+    personalStory_en: 'Köfta bil Sanieh is a dish that smells of childhood, community and spices from the Syrian kitchen. My parents come from Syria and this dish has always had a natural place at our table.\n\nFor me, Köfta bil Sanieh carries not just the taste of the Middle East, but also the taste of my family, our history and those moments when we were truly together.',
+    ingredients: [{section:'Köftabiffarna',section_en:'The köfta patties',items:['1 kg nötfärs (10–15% fetthalt)','2 salladslökar, finhackade','1 knippe persilja, finhackad','3 vitlöksklyftor','3 msk olivolja','1 msk salt','1 tsk svartpeppar','1 tsk garam masala'],items_en:['1 kg minced beef (10–15% fat)','2 spring onions, finely chopped','1 bunch parsley, finely chopped','3 garlic cloves','3 tbsp olive oil','1 tbsp salt','1 tsp black pepper','1 tsp garam masala']},{section:'Grönsaker',section_en:'Vegetables',items:['Ca 4 fasta potatisar, skalade och klyvade','5–6 padron paprika'],items_en:['About 4 firm potatoes, peeled and cut','5–6 padron peppers']},{section:'Tomatsås',section_en:'Tomato sauce',items:['3 dl vatten','1 msk tomatpuré','1 tsk lökpulver','1 tsk salt','1 tsk chiliflakes'],items_en:['3 dl water','1 tbsp tomato paste','1 tsp onion powder','1 tsp salt','1 tsp chili flakes']}],
+    instructions: [{section:'Förbered järparna',section_en:'Prepare the patties',steps:['Hacka lök, vitlök och persilja fint. Blanda med olivolja och kryddor. Knåda in i färsen och forma till järpar.'],steps_en:['Finely chop onion, garlic and parsley. Mix with olive oil and spices. Knead into the mince and shape into patties.']},{section:'Förstek potatisen',section_en:'Pre-fry the potatoes',steps:['Halvstekvpotatisskivorna i olja tills gyllenbruna men ej genomstekta.'],steps_en:['Half-fry the potato slices in oil until golden but not fully cooked.']},{section:'Stek järparna',section_en:'Fry the patties',steps:['Snabbstek 1–2 min per sida för smak och form.'],steps_en:['Quickly fry 1–2 min per side for colour and shape.']},{section:'Grädda',section_en:'Bake',steps:['Varva järpar och potatis i ugnsform. Häll tomatpuré och vatten över – krydda väl.','Baka 250°C ca 20 min, lägg på padron paprika och baka 15 min till.','Servera med ris eller bröd!'],steps_en:['Layer patties and potatoes in an ovenproof dish. Pour tomato paste and water over – season well.','Bake at 250°C for about 20 min, add padron peppers and bake 15 min more.','Serve with rice or bread!']}],
+    tips: ['Garam masala finns i mellanösternbutiker','Padron kan bytas mot mild paprika','Smakar bättre dagen efter','Servera med basmatiris och yoghurt'],
+    tips_en: ['Garam masala available at Middle Eastern stores','Padron can be swapped for mild pepper','Tastes better the next day','Serve with basmati rice and yoghurt']
+  },
+  'pasta-pesto': {
+    title: 'Pasta pesto med ugnsbakade tomater & stekt halloumi',
+    title_en: 'Pasta Pesto with Oven-roasted Tomatoes & Fried Halloumi',
+    description: 'En smakrik, krämig och färgsprakande pastarätt med pesto, ugnsbakade tomater och stekt halloumi.',
+    description_en: 'A flavourful, creamy and colourful pasta dish with pesto, oven-roasted tomatoes and fried halloumi.',
+    image: 'https://j0bzpddd4j.ufs.sh/f/bwjssIq7FWHCfVuc1HC48dYxTFVG4qu9OSWrN21vZPBkJiCo',
+    time: '40', portions: '4',
+    badges: ['Vegetariskt','Snabb','Pasta'],
+    ingredients: [{section:'Ugnsbakade tomater',section_en:'Oven-roasted tomatoes',items:['400g körsbärstomater','2 msk olivolja','1 tsk havssalt','1 krm svartpeppar'],items_en:['400g cherry tomatoes','2 tbsp olive oil','1 tsp sea salt','1 pinch black pepper']},{section:'Såsen',section_en:'The sauce',items:['1 gul lök','5 dl matgrädde','380g grön pesto','400g pasta'],items_en:['1 yellow onion','5 dl cooking cream','380g green pesto','400g pasta']},{section:'Topping',section_en:'Topping',items:['250g halloumi','1 knippe färsk basilika','Nymalen svartpeppar'],items_en:['250g halloumi','1 bunch fresh basil','Freshly ground black pepper']}],
+    instructions: [{steps:['Ugnsbaka tomater med olivolja och salt, 200°C i 15 min.','Koka pasta enligt anvisning – spara pastavattnet.','Fräs finhackad lök. Tillsätt grädde och låt puttra. Rör ner peston.','Vänd ner pasta i såsen, tillsätt lite pastavatten vid behov.','Stek halloumiskivor gyllene i torr panna.','Toppa med tomater, halloumi, basilika och svartpeppar.'],steps_en:['Oven-roast tomatoes with olive oil and salt, 200°C for 15 min.','Cook pasta according to instructions – save the pasta water.','Sauté finely chopped onion. Add cream and let simmer. Stir in the pesto.','Toss pasta in the sauce, add a little pasta water if needed.','Fry halloumi slices golden in a dry pan.','Top with tomatoes, halloumi, basil and black pepper.']}],
+    tips: ['Prova olika tomatfärger för vackrare presentation','Pastavatten binder såsen perfekt','Byt halloumi mot grillad zucchini för vegan','Soltorkade tomater ger annan smakprofil'],
+    tips_en: ['Try different tomato colours for a more beautiful presentation','Pasta water binds the sauce perfectly','Swap halloumi for grilled courgette for vegan','Sun-dried tomatoes give a different flavour profile']
+  },
+  'kyckling-shawarma': {
+    title: 'Kyckling Shawarma',
+    title_en: 'Chicken Shawarma',
+    description: 'Autentisk mellanöstern kyckling shawarma med hemmagjorda tunnbröd, kryddigt kött och fräscha tillbehör.',
+    description_en: 'Authentic Middle Eastern chicken shawarma with home-made flatbreads, spiced meat and fresh sides.',
+    image: 'https://j0bzpddd4j.ufs.sh/f/bwjssIq7FWHCG7jiQH9bnLa0KVhUD3INroEj6yqmid4HwlYB',
+    time: '120', portions: '5',
+    badges: ['Kött','Mellanöstern','Familj'],
+    ingredients: [{section:'Kycklingen',section_en:'The chicken',items:['900g kycklinglårfilé','1 tsk spiskummin','1 tsk paprikapulver','1 tsk gurkmeja','1 tsk malen koriander','1 msk vitlökspulver','1 msk lökpulver','1 tsk cayennepeppar','1 tsk dragon','1 msk salt','1 tsk svartpeppar','1 msk tomatpuré'],items_en:['900g chicken thigh fillets','1 tsp cumin','1 tsp paprika powder','1 tsp turmeric','1 tsp ground coriander','1 tbsp garlic powder','1 tbsp onion powder','1 tsp cayenne pepper','1 tsp tarragon','1 tbsp salt','1 tsp black pepper','1 tbsp tomato paste']},{section:'Vitlökssås',section_en:'Garlic sauce',items:['2,5 dl grekisk yoghurt','2 vitlöksklyftor (rivna)','Mynta och persilja, finhackad','1 tsk limesaft','Flingsalt'],items_en:['2.5 dl Greek yoghurt','2 garlic cloves (grated)','Mint and parsley, finely chopped','1 tsp lime juice','Sea salt']},{section:'Löksallad',section_en:'Onion salad',items:['2 röda lökar','1 msk torkad persilja','1–2 tsk sumak','1 msk olivolja','Flingsalt'],items_en:['2 red onions','1 tbsp dried parsley','1–2 tsp sumac','1 tbsp olive oil','Sea salt']},{section:'Tunnbröd (ca 5 st)',section_en:'Flatbreads (approx. 5)',items:['5,5 dl vetemjöl','2,5 dl ljummet vatten','1 tsk salt','15g färsk jäst'],items_en:['5.5 dl plain flour','2.5 dl lukewarm water','1 tsp salt','15g fresh yeast']}],
+    instructions: [{section:'Marinera',section_en:'Marinate',steps:['Skär kycklingen i strimlor, blanda med alla kryddor och tomatpuré. Täck och ställ i kyl minst 1 timme.'],steps_en:['Cut the chicken into strips, mix with all the spices and tomato paste. Cover and refrigerate for at least 1 hour.']},{section:'Vitlökssås',section_en:'Garlic sauce',steps:['Blanda yoghurt, riven vitlök, örter och limesaft. Smaka av med salt.'],steps_en:['Mix yoghurt, grated garlic, herbs and lime juice. Season with salt.']},{section:'Löksallad',section_en:'Onion salad',steps:['Skiva lök tunt. Blanda med persilja, sumak, olivolja och salt. Låt stå 10–15 min.'],steps_en:['Slice onion thinly. Mix with parsley, sumac, olive oil and salt. Leave for 10–15 min.']},{section:'Tunnbröd',section_en:'Flatbreads',steps:['Lös jäst i vatten, tillsätt mjöl och salt. Knåda 8–10 min, jäs 1 timme.','Dela i 5 bitar, kavla tunt. Grädda i torr het panna ca 1 min per sida.'],steps_en:['Dissolve yeast in water, add flour and salt. Knead 8–10 min, rise 1 hour.','Divide into 5 pieces, roll out thinly. Bake in a dry hot pan about 1 min per side.']},{section:'Tillaga & servera',section_en:'Cook & serve',steps:['Stek kycklingen i het panna tills genomstekt.','Bygg shawarma: kyckling + grönsaker + vitlökssås i tunnbröd.'],steps_en:['Fry the chicken in a hot pan until cooked through.','Build shawarma: chicken + vegetables + garlic sauce in flatbread.']}],
+    tips: ['Marinera över natten för djupare smak','Tunnbröden kan frysas','Extra vitlökssås som dipp','Prova att grilla kycklingen för rökig smak'],
+    tips_en: ['Marinate overnight for deeper flavour','Flatbreads can be frozen','Extra garlic sauce for dipping','Try grilling the chicken for a smoky taste']
+  },
+  'pannpizzor': {
+    title: 'Snabba pannpizzor direkt i ugnsformen',
+    title_en: 'Quick Pan Pizzas Straight in the Baking Tin',
+    description: 'Perfekt för kylskåpsrester! Enkel deg, valfria toppings – familjens favorit på nolltid.',
+    description_en: 'Perfect for fridge leftovers! Simple dough, toppings of your choice – the family favourite in no time.',
+    image: 'https://j0bzpddd4j.ufs.sh/f/bwjssIq7FWHC9IRZic42Pb4HZiuUEJYFXxpw0kyC8QIv7W2f',
+    time: '90', portions: '4–6',
+    badges: ['Vegetariskt','Bakverk','Pizza'],
+    ingredients: [{section:'Pizzadeg',section_en:'Pizza dough',items:['5 dl ljummet vatten','25g färsk jäst','2 tsk salt','2 msk olivolja','ca 10–12 dl vetemjöl'],items_en:['5 dl lukewarm water','25g fresh yeast','2 tsp salt','2 tbsp olive oil','approx. 10–12 dl plain flour']},{section:'Toppings',section_en:'Toppings',items:['Tomatsås','Ost (mozzarella, cheddar)','Kylskåpsrester (skinka, grönsaker, champinjoner)','Örter (oregano, basilika)'],items_en:['Tomato sauce','Cheese (mozzarella, cheddar)','Fridge leftovers (ham, vegetables, mushrooms)','Herbs (oregano, basil)']}],
+    instructions: [{steps:['Lös jästen i vattnet. Tillsätt salt och olivolja.','Arbeta in mjölet till en smidig lös deg. Jäs under duk 45–60 min.','Dela i 2 bitar, lägg på ugnsform med bakplåtspapper och tryck ut med fingrar.','Låt jäsa 20 min. Lägg på topping.','Grädda 230°C i 15–20 min. Njut! 😊'],steps_en:['Dissolve the yeast in the water. Add salt and olive oil.','Work in flour to a smooth, loose dough. Rise under a cloth for 45–60 min.','Divide into 2 pieces, place on baking tin with baking paper and press out with fingers.','Let rise 20 min. Add topping.','Bake at 230°C for 15–20 min. Enjoy! 😊']}],
+    tips: ['Perfekt för kylskåpsrester','Degen kan göras dagen innan','Prova oliver, paprika och champinjoner','Kan frysas efter gräddning'],
+    tips_en: ['Perfect for fridge leftovers','Dough can be made the day before','Try olives, peppers and mushrooms','Can be frozen after baking']
+  },
+  'batata-harra': {
+    title: 'Batata Harra – Friterad potatis med tomatsås',
+    title_en: 'Batata Harra – Fried Potatoes with Tomato Sauce',
+    description: 'Kryddig libanesisk rätt med krispig potatis och het tomatsås. Perfekt som meze eller tillbehör!',
+    description_en: 'Spicy Lebanese dish with crispy potatoes and hot tomato sauce. Perfect as meze or a side dish!',
+    image: 'https://j0bzpddd4j.ufs.sh/f/bwjssIq7FWHCfWaFTn48dYxTFVG4qu9OSWrN21vZPBkJiCoK',
+    time: '35', portions: '4–6',
+    badges: ['Vegan','Libanesiskt','Potatis'],
+    ingredients: [{section:'Potatis',section_en:'Potatoes',items:['1 kg fast potatis','Rapsolja till fritering'],items_en:['1 kg firm potatoes','Rapeseed oil for frying']},{section:'Tomatsås',section_en:'Tomato sauce',items:['1,5 msk tomatpuré','2 msk rapsolja','1 msk lökpulver','½ msk svartpeppar','1 dl vatten','1,5 tsk salt','1 vitlöksklyfta','1,5 tsk chiliflakes','1 msk paprikapulver'],items_en:['1.5 tbsp tomato paste','2 tbsp rapeseed oil','1 tbsp onion powder','½ tbsp black pepper','1 dl water','1.5 tsp salt','1 garlic clove','1.5 tsp chili flakes','1 tbsp paprika powder']},{section:'Topping',section_en:'Topping',items:['Färsk persilja (finhackad)','Färsk mynta (finhackad)','Tajinkrydda efter smak'],items_en:['Fresh parsley (finely chopped)','Fresh mint (finely chopped)','Tajin spice to taste']}],
+    instructions: [{section:'Fritera',section_en:'Fry',steps:['Skala och tärna potatisen. Blötlägg i kallt vatten 5 min, torka noga.','Fritera tills gyllene och ca 80% klar. Lägg på papper.'],steps_en:['Peel and dice the potatoes. Soak in cold water for 5 min, dry thoroughly.','Fry until golden and about 80% cooked. Place on paper.']},{section:'Tomatsås',section_en:'Tomato sauce',steps:['Stek tomatpurén i olja. Häll i vatten, krydda med allt.','Sjuda 1 min.'],steps_en:['Fry the tomato paste in oil. Add water, season with everything.','Simmer for 1 min.']},{section:'Slutför',section_en:'Finish',steps:['Vänd ner potatisen i såsen.','Strö rikligt med persilja, mynta och tajinkrydda.','Servera varm med libabröd och hummus.'],steps_en:['Toss the potatoes in the sauce.','Sprinkle generously with parsley, mint and tajin.','Serve warm with flatbread and hummus.']}],
+    tips: ['Torka potatisen noga för krispighet','Fritera inte helt färdigt – klart 80%','Tajinkrydda finns i mellanösternbutiker','Supergott med hummus och bröd'],
+    tips_en: ['Dry the potatoes thoroughly for crispiness','Do not fry completely – 80% done','Tajin available at Middle Eastern stores','Great with hummus and bread']
+  },
+  'mini-lahmacun': {
+    title: 'Mini Lahmacun – Perfekt mängd, noll svinn!',
+    title_en: 'Mini Lahmacun – Perfect Amount, Zero Waste!',
+    description: '15 perfekta mini lahmacun. Frysvänliga, fyllda av smak och älskade av hela familjen!',
+    description_en: '15 perfect mini lahmacun. Freezer-friendly, full of flavour and loved by the whole family!',
+    image: 'https://j0bzpddd4j.ufs.sh/f/bwjssIq7FWHCFL7L57kjIHwnGYgUvXdix8ms3ac07hetyqO4',
+    time: '75', portions: '15',
+    badges: ['Turkiskt','Kött','Traditionellt'],
+    personalStory: 'Mini lahmacun är den perfekta lösningen när man har lust på hemmagjord lahmacun men inte vill ha massor av rester. Dessa guldkorn är lagom stora – och det bästa? Frys in dem och ta fram precis vad du behöver!',
+    personalStory_en: "Mini lahmacun is the perfect solution when you fancy home-made lahmacun but don't want lots of leftovers. These little gems are just the right size – and the best part? Freeze them and take out exactly what you need!",
+    ingredients: [{section:'Degen (ca 15 st)',section_en:'The dough (approx. 15)',items:['4 dl varmt vatten (40°C)','1 tsk torrjäst','½ dl rapsolja','2 tsk salt','7 dl vetemjöl'],items_en:['4 dl warm water (40°C)','1 tsp dry yeast','½ dl rapeseed oil','2 tsp salt','7 dl plain flour']},{section:'Köttfärsfyllning',section_en:'Minced meat filling',items:['1 gul lök','1 kvisttomat','1 röd spetspaprika','1 grön paprika (gärna sivri)','350g nötfärs (eller 50/50 nöt/lamm)','1 msk paprikapulver','½ tsk svartpeppar'],items_en:['1 yellow onion','1 vine tomato','1 red pointed pepper','1 green pepper (preferably sivri)','350g minced beef (or 50/50 beef/lamb)','1 tbsp paprika powder','½ tsp black pepper']},{section:'Montering',section_en:'Assembly',items:['En näve färsk persilja'],items_en:['A handful of fresh parsley']}],
+    instructions: [{section:'Degen',section_en:'The dough',steps:['Blanda vatten, jäst och olja. Vänta 5 min. Tillsätt mjöl och salt.','Knåda till smidig deg. Jäs 15 min under duk.','Dela i 15 bitar och kavla ut tunna runda kakor.'],steps_en:['Mix water, yeast and oil. Wait 5 min. Add flour and salt.','Knead to a smooth dough. Rise for 15 min under a cloth.','Divide into 15 pieces and roll out thin round flatbreads.']},{section:'Fyllning',section_en:'Filling',steps:['Mixa alla grönsaker till puré. Blanda med köttfärs och kryddor. Knåda väl. Ställ i kyl.'],steps_en:['Blend all vegetables to a purée. Mix with minced meat and spices. Knead well. Refrigerate.']},{section:'Gräddning',section_en:'Baking',steps:['Förvärm ugn till 250°C.','Bred ut köttfärsen tunt på degkakorna.','Grädda 8–10 min tills kanterna är gyllene.','Servera direkt eller frys in.'],steps_en:['Preheat oven to 250°C.','Spread the minced meat thinly on the dough rounds.','Bake for 8–10 min until edges are golden.','Serve immediately or freeze.']}],
+    tips: ['Frysvänliga – ta fram precis vad du behöver','50/50 nöt och lamm ger autentisk smak','Sivri paprika är mild och perfekt'],
+    tips_en: ['Freezer-friendly – take out exactly what you need','50/50 beef and lamb gives authentic taste','Sivri pepper is mild and perfect']
+  },
+  'lins-bulgur-jarpar': {
+    title: 'Lins- och bulgurjärpar med sumak och spetspaprika',
+    title_en: 'Lentil & Bulgur Patties with Sumac and Pointed Pepper',
+    description: 'Proteinrika vegetariska järpar med röda linser, bulgur och aromatiska kryddor från Mellanöstern.',
+    description_en: 'Protein-rich vegetarian patties with red lentils, bulgur and aromatic spices from the Middle East.',
+    image: 'https://j0bzpddd4j.ufs.sh/f/bwjssIq7FWHCrZI4Zt1TCmP1dAHK4ioO3RwLkl5gtYD2IMbW',
+    time: '45', portions: '4–6',
+    badges: ['Vegetariskt','Mellanöstern','Protein'],
+    ingredients: [{section:'Huvudingredienser',section_en:'Main ingredients',items:['1 liter vatten','3 dl röda linser','6 dl finmalen bulgur','1,5 gul lök, finhackad','2 röda spetspaprikor, finhackade','5–6 salladslökar, finhackade','0,5 dl rapsolja','1–1,5 msk tomatpuré'],items_en:['1 litre water','3 dl red lentils','6 dl finely ground bulgur','1.5 yellow onion, finely chopped','2 red pointed peppers, finely chopped','5–6 spring onions, finely chopped','0.5 dl rapeseed oil','1–1.5 tbsp tomato paste']},{section:'Kryddor',section_en:'Spices',items:['2,5 tsk salt','1 msk sumak','1 tsk svartpeppar','1 tsk garam masala','1 tsk cayennepeppar'],items_en:['2.5 tsp salt','1 tbsp sumac','1 tsp black pepper','1 tsp garam masala','1 tsp cayenne pepper']}],
+    instructions: [{section:'Koka linser och bulgur',section_en:'Cook lentils and bulgur',steps:['Koka upp 1 liter vatten. Skölj linser och lägg i. Skumma.','Koka ca 10 min tills gröna. Stäng av värmen.','Skölj bulgur och rör ner. Låt svälla tills tjockt.'],steps_en:['Bring 1 litre of water to the boil. Rinse lentils and add. Skim.','Cook for about 10 min until soft. Turn off the heat.','Rinse bulgur and stir in. Let swell until thick.']},{section:'Grönsaksröran',section_en:'The vegetable mix',steps:['Finhacka lök, paprika och salladslök.','Fräs gul lök i rapsolja tills mjuk.','Tillsätt paprika och tomatpuré, fräs 2 min.','Vänd ner salladslök och kryddor. Stek 5–7 min. Svalna.'],steps_en:['Finely chop onion, pepper and spring onions.','Sauté yellow onion in rapeseed oil until soft.','Add pepper and tomato paste, sauté 2 min.','Fold in spring onions and spices. Fry for 5–7 min. Let cool.']},{section:'Forma',section_en:'Shape',steps:['Blanda lins-bulgur och grönsaksröran.','Tillsätt vatten om degen är torr – ska vara formbar.','Forma till järpar eller bollar.'],steps_en:['Mix lentil-bulgur and the vegetable mix.','Add water if the dough is dry – should be shapeable.','Shape into patties or balls.']}],
+    tips: ['Servera i libabröd med citron och sirap','Sumak ger syrlig smak – finns i mellanösternbutiker','Kan förberedas dagen innan'],
+    tips_en: ['Serve in flatbread with lemon and syrup','Sumac gives a sour flavour – available at Middle Eastern stores','Can be prepared the day before']
+  },
+  'kall-foul-medames': {
+    title: 'Kall foul medames',
+    title_en: 'Cold Foul Medames',
+    description: 'Fräsch och proteinrik sallad med kokta favabönor, färska örter och citron. Perfekt som meze eller lätt lunch!',
+    description_en: 'Fresh and protein-rich salad with cooked broad beans, fresh herbs and lemon. Perfect as meze or a light lunch!',
+    image: 'https://j0bzpddd4j.ufs.sh/f/bwjssIq7FWHCzNWv2DP9mAtjTsb7I6ZNyREunpVPwDz3h850',
+    time: '15', portions: '4',
+    badges: ['Vegan','Mellanöstern','Snabb'],
+    ingredients: [{items:['2 burkar kokta bruna bönor eller favabönor (à 400g)','2–3 vitlöksklyftor, finhackade','1 liten lök, finhackad','1 stor tomat, hackad','1 grön chili, finhackad','1 dl färsk persilja, grovhackad','2–3 msk färsk salvia, finhackad','2 msk färsk mynta, finhackad','1 citron, saften','0,5 dl olivolja','Salt och svartpeppar'],items_en:['2 cans cooked brown beans or broad beans (400g each)','2–3 garlic cloves, finely chopped','1 small onion, finely chopped','1 large tomato, chopped','1 green chili, finely chopped','1 dl fresh parsley, roughly chopped','2–3 tbsp fresh sage, finely chopped','2 tbsp fresh mint, finely chopped','1 lemon, the juice','0.5 dl olive oil','Salt and black pepper']}],
+    instructions: [{steps:['Skölj bönorna noga och häll av vätskan.','Lägg i skål och blanda med alla grönsaker.','Ringla citron och olivolja.','Krydda med örter, salt och peppar.','Rör om och låt stå 5–10 min.'],steps_en:['Rinse the beans thoroughly and drain the liquid.','Place in a bowl and mix with all the vegetables.','Drizzle with lemon and olive oil.','Season with herbs, salt and pepper.','Stir and let stand for 5–10 min.']}],
+    tips: ['Servera med libabröd','Kan göras dagen innan','Extra olivolja och citron vid servering','Prova med feta eller tahini'],
+    tips_en: ['Serve with flatbread','Can be made the day before','Extra olive oil and lemon when serving','Try with feta or tahini']
+  },
+  'kycklingfile-potatis-dragon': {
+    title: 'Stekt kycklingfilé med smörslungad potatis & dragonsås',
+    title_en: 'Fried Chicken Fillet with Butter-tossed Potatoes & Tarragon Sauce',
+    description: 'Krämig dragonsås, saftig kyckling och smörstekta grönsaker – enkel men med känsla av vardagslyx.',
+    description_en: 'Creamy tarragon sauce, juicy chicken and butter-fried vegetables – simple yet with a feeling of everyday luxury.',
+    image: 'https://j0bzpddd4j.ufs.sh/f/bwjssIq7FWHC8m7bPB037zrR9qXSut4TKmZEpjlBcOhHew02',
+    time: '60', portions: '3–4',
+    badges: ['Kött','Klassisk','Vardagslyx'],
+    personalStory: 'Det här är en rätt som snabbt blev en favorit hemma. Den ser ut och smakar som helg – men går att laga en vanlig vardagskväll. Vällagad, färgstark och full av smak.',
+    personalStory_en: 'This is a dish that quickly became a favourite at home. It looks and tastes like a weekend meal – but can be made on an ordinary weeknight. Well-cooked, colourful and full of flavour.',
+    ingredients: [{section:'Kyckling',section_en:'Chicken',items:['3 kycklingfiléer','Salt och svartpeppar','Smör och olja till stekning','Färsk timjan eller rosmarin (valfritt)'],items_en:['3 chicken fillets','Salt and black pepper','Butter and oil for frying','Fresh thyme or rosemary (optional)']},{section:'Potatis & grönsaker',section_en:'Potatoes & vegetables',items:['800g delikatesspotatis','1 röd, 1 gul, 1 orange paprika','1 stor rödlök','Ca 300g brysselkål','50–75g smör','Salt och svartpeppar'],items_en:['800g baby potatoes','1 red, 1 yellow, 1 orange pepper','1 large red onion','About 300g Brussels sprouts','50–75g butter','Salt and black pepper']},{section:'Dragonsås',section_en:'Tarragon sauce',items:['2 dl vispgrädde','1 dl crème fraîche','1–2 tsk dijonsenap','1 tsk vitvinsvinäger','1–2 tsk torkad dragon','Salt och svartpeppar'],items_en:['2 dl whipping cream','1 dl crème fraîche','1–2 tsp Dijon mustard','1 tsp white wine vinegar','1–2 tsp dried tarragon','Salt and black pepper']}],
+    instructions: [{section:'Kycklingen',section_en:'The chicken',steps:['Förvärm ugn 150°C. Krydda filéerna. Bryn i smör+olja 2–3 min/sida.','Lägg i ugnsform, tillsätt smör eller buljong. Tillaga till 70–72°C innetemperatur.','Låt vila 5–10 min.'],steps_en:['Preheat oven 150°C. Season the fillets. Brown in butter+oil 2–3 min/side.','Place in ovenproof dish, add butter or stock. Cook to 70–72°C internal temperature.','Rest for 5–10 min.']},{section:'Potatis & grönsaker',section_en:'Potatoes & vegetables',steps:['Koka potatis nästan klar. Halvera. Förkoka brysselkål 3 min.','Stek potatis gyllenbrun. Tillsätt grönsaker, stek 10 min. Avsluta med smörklick.'],steps_en:['Boil potatoes until almost done. Halve. Pre-cook Brussels sprouts 3 min.','Fry potatoes golden brown. Add vegetables, fry 10 min. Finish with a knob of butter.']},{section:'Dragonsås',section_en:'Tarragon sauce',steps:['Koka grädde och crème fraîche. Vispa ner senap, dragon och vinäger.','Sjuda 5–10 min tills lätt tjocknat. Smaka av.'],steps_en:['Simmer cream and crème fraîche. Whisk in mustard, tarragon and vinegar.','Simmer for 5–10 min until slightly thickened. Season to taste.']},{section:'Servering',section_en:'Serving',steps:['Skär kycklingen i sneda skivor. Lägg på grönsaker och ringla sås.'],steps_en:['Slice the chicken at an angle. Place on vegetables and drizzle with sauce.']}],
+    tips: ['Kötttermometer ger perfekt resultat','Dragonsåsen kan göras i förväg','Zucchini och sparris passar också bra'],
+    tips_en: ['Meat thermometer gives perfect results','Tarragon sauce can be made in advance','Courgette and asparagus also work well']
+  }
+};
+
+const RECIPE_ID = new URLSearchParams(window.location.search).get('id') || window.location.hash.replace('#','');
+
+function render() {
+  const id = RECIPE_ID;
+  const r = RECIPES[id];
+  const container = document.getElementById('recipe-content');
+  if (!r) {
+    container.innerHTML = `<div class="not-found"><h2>${getT('r.notfound.h')}</h2><p>${getT('r.notfound.p')}</p><a class="btn-primary" href="index.html#recept">${getT('r.notfound.btn')}</a></div>`;
+    return;
+  }
+
+  const title       = tv(r.title, r.title_en);
+  const description = tv(r.description, r.description_en);
+  const story       = tv(r.personalStory, r.personalStory_en);
+  document.title    = title + ' – MaykasKitchen';
+
+  const storyHtml = story
+    ? `<div class="recipe-story">${story.split('\n\n').map(p => `<p>${p}</p>`).join('')}</div>` : '';
+
+  const ingsHtml = r.ingredients.map(s => `
+    <div class="ing-section">
+      ${s.section ? `<div class="ing-section-title">${tv(s.section, s.section_en)}</div>` : ''}
+      <ul class="ing-list">${tv(s.items, s.items_en).map(i => `<li>${i}</li>`).join('')}</ul>
+    </div>`).join('');
+
+  const instHtml = r.instructions.map(s => `
+    <div class="step-section">
+      ${s.section ? `<div class="step-section-title">${tv(s.section, s.section_en)}</div>` : ''}
+      <ol class="step-list">${tv(s.steps, s.steps_en).map((st, i) => `<li class="step-item"><span class="step-num">${i+1}</span><span class="step-text">${st}</span></li>`).join('')}</ol>
+    </div>`).join('');
+
+  const tips    = tv(r.tips, r.tips_en);
+  const tipsHtml = tips ? `
+    <div class="recipe-tips">
+      <div class="card-title">${getT('r.tips')}</div>
+      <ul class="tips-list">${tips.map(t => `<li>${t}</li>`).join('')}</ul>
+    </div>` : '';
+
+  container.innerHTML = `
+    <div class="recipe-hero">
+      <div class="recipe-hero-img"><img src="${r.image}" alt="${title}" loading="eager"></div>
+      <div class="recipe-hero-content">
+        <div class="recipe-badges">${r.badges.map(b => `<span class="recipe-badge-tag">${b}</span>`).join('')}</div>
+        <h1 class="recipe-title">${title}</h1>
+        <p class="recipe-desc">${description}</p>
+        <div class="recipe-meta">
+          <span class="recipe-meta-item">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            <strong>${r.time} ${getT('r.min')}</strong>
+          </span>
+          <span class="recipe-meta-item">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <strong>${r.portions} ${getT('r.portions')}</strong>
+          </span>
+        </div>
+      </div>
+    </div>
+    ${storyHtml}
+    <div class="recipe-content">
+      <div class="recipe-ingredients">
+        <div class="card-title">${getT('r.ingredients')}</div>
+        ${ingsHtml}
+      </div>
+      <div class="recipe-instructions">
+        <div class="recipe-instructions-card">
+          <div class="card-title">${getT('r.instructions')}</div>
+          ${instHtml}
+        </div>
+        ${tipsHtml}
+      </div>
+    </div>`;
+}
+
+window.MK_RENDER = render;
+render();
+initLangToggle();
+</script>
+</body>
+</html>
